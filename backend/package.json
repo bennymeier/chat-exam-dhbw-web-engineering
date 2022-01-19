@@ -15,10 +15,12 @@
     "start": "nodemon"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.2",
     "mongoose": "^6.1.7"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
