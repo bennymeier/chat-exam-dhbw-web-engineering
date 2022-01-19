@@ -38,7 +38,7 @@ const deleteUser = async (req: Request, res: Response) => {
 const getUserById = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ _id: req.params.id });
-    return res.status(200).json({ success: true, data: user });
+    return res.status(200).json(user);
   } catch (err) {
     return res.status(400).json({ success: false, error: err });
   }
@@ -47,7 +47,7 @@ const getUserById = async (req: Request, res: Response) => {
 const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find({});
-    return res.status(200).json({ success: true, data: users });
+    return res.status(200).json(users);
   } catch (error) {
     return res.status(400).json({ success: false, error });
   }

@@ -5,7 +5,7 @@ import RoomRouter from './routers/room.router';
 import UserRouter from './routers/user.router';
 import MessageRouter from './routers/message.router';
 
-const port = 3000 || process.env.PORT;
+const port = 3001 || process.env.PORT;
 
 const app = express();
 
