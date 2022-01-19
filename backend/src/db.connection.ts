@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 import UserModel from './models/user.model';
-import RoomModel from './models/room.model';
-import MessageModel from './models/message.model';
 import { USERS } from './demo.data';
 
 /**
