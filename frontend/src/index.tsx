@@ -4,13 +4,31 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import LoginPage from './components/LoginPage';
+import AuthProvider from './components/AuthProvider';
+import RequireAuth from './components/RequireAuth';
 const queryClient = new QueryClient();
 
 ReactDOM.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider>
-        <App />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              <Route
+                path="/chat"
+                element={
+                  <RequireAuth>
+                    <App />
+                  </RequireAuth>
+                }
+              />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
       </ChakraProvider>
     </QueryClientProvider>
   </React.StrictMode>,

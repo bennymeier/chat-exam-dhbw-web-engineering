@@ -28,6 +28,9 @@ import {
 import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
 import { useQuery } from 'react-query';
 import { GET_USERS } from '../utils';
+import authProvider from '../auth';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 
 const Sidebar = ({ children }: { children: ReactNode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,7 +53,6 @@ const Sidebar = ({ children }: { children: ReactNode }) => {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      {/* mobilenav */}
       <MobileNav onOpen={onOpen} />
       <Box ml={{ base: 0, md: 60 }} p="4">
         {children}
@@ -86,7 +88,11 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   );
 };
 
-const UserList = () => {
+interface UserListProps {
+  click?: (user: any) => void;
+}
+export const UserList = (props: UserListProps) => {
+  const { click } = props;
   const { isLoading, error, data } = useQuery('users', () =>
     fetch(GET_USERS).then((res) => res.json())
   );
@@ -102,10 +108,20 @@ const UserList = () => {
       </>
     );
 
+  const handleClick = (user: any) => {
+    if (click) {
+      click(user);
+    }
+  };
+
   return (
     <Box overflowY="auto" height="100%">
       {data.map((user: any) => (
-        <User key={user.username} user={user} />
+        <User
+          key={user.username}
+          user={user}
+          onClick={() => handleClick(user)}
+        />
       ))}
     </Box>
   );
@@ -150,6 +166,13 @@ interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const handleSignOut = () => {
+    authProvider.signout();
+    navigate('/');
+  };
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -195,10 +218,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             >
               <HStack>
                 <Avatar
+                  name={`${user.firstname} ${user.lastname}`}
                   size={'sm'}
-                  src={
-                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
-                  }
+                  src={user.avatar}
                 />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
@@ -206,7 +228,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">{`${user.firstname} ${user.lastname}`}</Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>
@@ -221,10 +243,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
               <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
