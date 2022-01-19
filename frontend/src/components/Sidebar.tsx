@@ -131,7 +131,7 @@ interface UserProps extends FlexProps {
   user: any;
 }
 const User = ({ user, ...rest }: UserProps) => {
-  const { firstname, lastname, avatar } = user;
+  const { firstname, lastname, avatar, mail } = user;
   return (
     <Link
       href="#"
@@ -140,8 +140,9 @@ const User = ({ user, ...rest }: UserProps) => {
     >
       <Flex
         align="center"
-        p="4"
-        mx="4"
+        py="2"
+        px="1"
+        mx="2"
         borderRadius="lg"
         role="group"
         cursor="pointer"
@@ -154,9 +155,12 @@ const User = ({ user, ...rest }: UserProps) => {
         <Avatar name={`${firstname} ${lastname}`} src={avatar} mr="4" size="md">
           <AvatarBadge boxSize="1.25em" bg="green.500" />
         </Avatar>
-        <Heading size="xs">
-          {firstname} {lastname}
-        </Heading>
+        <Flex flexDirection="column" alignItems="baseline">
+          <Heading size="xs">
+            {firstname} {lastname}
+          </Heading>
+          <Text fontSize="xs">{mail}</Text>
+        </Flex>
       </Flex>
     </Link>
   );
@@ -221,7 +225,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   name={`${user.firstname} ${user.lastname}`}
                   size={'sm'}
                   src={user.avatar}
-                />
+                >
+                  <AvatarBadge boxSize="1.25em" bg="green.500" />
+                </Avatar>
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"
@@ -230,7 +236,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 >
                   <Text fontSize="sm">{`${user.firstname} ${user.lastname}`}</Text>
                   <Text fontSize="xs" color="gray.600">
-                    Admin
+                    {user.mail}
                   </Text>
                 </VStack>
                 <Box display={{ base: 'none', md: 'flex' }}>
@@ -242,7 +248,61 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
-              <MenuItem>Profile</MenuItem>
+              <MenuItem>
+                <Flex alignItems="center" gap="0.5em">
+                  <Box
+                    bgColor="green.500"
+                    borderRadius="50%"
+                    width="16px"
+                    height="16px"
+                  />{' '}
+                  Online
+                </Flex>
+              </MenuItem>
+              <MenuItem>
+                <Flex alignItems="center" gap="0.5em">
+                  <Box
+                    bgColor="red.500"
+                    borderRadius="50%"
+                    width="16px"
+                    height="16px"
+                  />{' '}
+                  Busy
+                </Flex>
+              </MenuItem>
+              <MenuItem>
+                <Flex alignItems="center" gap="0.5em">
+                  <Box
+                    bgColor="red.700"
+                    borderRadius="50%"
+                    width="16px"
+                    height="16px"
+                  />{' '}
+                  Do not disturb
+                </Flex>
+              </MenuItem>
+              <MenuItem>
+                <Flex alignItems="center" gap="0.5em">
+                  <Box
+                    bgColor="gray.500"
+                    borderRadius="50%"
+                    width="16px"
+                    height="16px"
+                  />{' '}
+                  Away
+                </Flex>
+              </MenuItem>
+              <MenuItem>
+                <Flex alignItems="center" gap="0.5em">
+                  <Box
+                    bgColor="gray.700"
+                    borderRadius="50%"
+                    width="16px"
+                    height="16px"
+                  />{' '}
+                  Offline
+                </Flex>
+              </MenuItem>
               <MenuDivider />
               <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>
