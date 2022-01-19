@@ -16,11 +16,13 @@
 
 - Node.js
 - Express
+- TypeScript
 - Cors
 
 #### Frontend
 
 - React
+- TypeScript
 - React Query
 - React Router Dom
 - Chakra-UI
