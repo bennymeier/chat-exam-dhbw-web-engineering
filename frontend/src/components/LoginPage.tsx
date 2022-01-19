@@ -1,14 +1,15 @@
-import { Container, Heading } from '@chakra-ui/react';
+import { Box, Container, Heading } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserInterface } from '../types';
 import { useAuth } from './AuthProvider';
-import { UserList } from './Sidebar';
+import UserList from './UserList';
 
 const LoginPage = () => {
   let navigate = useNavigate();
   let auth = useAuth();
 
-  const handleClick = (user: any) => {
+  const handleClick = (user: UserInterface) => {
     auth.signin(user);
     navigate('/chat', { replace: true });
   };
@@ -28,7 +29,7 @@ const LoginPage = () => {
       auth.signin(user);
       navigate('/chat', { replace: true });
     }
-  }, []);
+  }, [auth, navigate]);
 
   if (auth && auth.user) {
     navigate('/chat', { replace: true });
@@ -37,11 +38,13 @@ const LoginPage = () => {
   return (
     <>
       <Container textAlign="center">
-        <Heading>Login</Heading>
-        <Heading size="sm">
-          Choose an user to login with. There is no registration or fully
-          implemented authentication.
-        </Heading>
+        <Box my="5">
+          <Heading mb="3">Login</Heading>
+          <Heading size="sm">
+            Choose an user to login with. There is no registration or fully
+            implemented authentication.
+          </Heading>
+        </Box>
         <UserList click={handleClick} />
       </Container>
     </>

@@ -24,7 +24,7 @@ const Message = (props: any) => {
         <Box
           bgColor={isMine ? 'gray.300' : 'teal.200'}
           p="1em"
-          borderRadius="4px"
+          borderRadius="md"
           maxWidth="65%"
         >
           <Flex gap="0.7em">

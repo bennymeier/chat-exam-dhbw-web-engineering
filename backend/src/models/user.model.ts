@@ -1,4 +1,4 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 const { Schema } = mongoose;
 
 export type Status = 'Online' | 'Busy' | 'Do not disturb' | 'Away' | 'Offline';
@@ -8,9 +8,10 @@ export interface UserInterface extends Document {
   password?: string;
   firstname: string;
   lastname: string;
-  avatar?: String;
+  avatar?: string;
   status: Status;
-  chats: String[];
+  chats: string[];
+  lastChatId: Types.ObjectId;
 }
 
 const UserSchema = new Schema<UserInterface>(
@@ -45,6 +46,9 @@ const UserSchema = new Schema<UserInterface>(
       type: String,
     },
     chats: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    lastChatId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

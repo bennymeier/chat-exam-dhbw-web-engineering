@@ -8,7 +8,6 @@ import {
   HStack,
   VStack,
   useColorModeValue,
-  Link,
   Drawer,
   DrawerContent,
   Text,
@@ -21,16 +20,13 @@ import {
   MenuItem,
   MenuList,
   AvatarBadge,
-  Heading,
-  Skeleton,
-  SkeletonCircle,
 } from '@chakra-ui/react';
 import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
-import { useQuery } from 'react-query';
-import { GET_USERS } from '../utils';
 import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import UserList from './UserList';
+import { UserInterface } from '../types';
 
 const Sidebar = ({ children }: { children: ReactNode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -83,94 +79,8 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <UserList />
+      <UserList showAllUser={false} />
     </Box>
-  );
-};
-
-interface UserListProps {
-  click?: (user: any) => void;
-}
-export const UserList = (props: UserListProps) => {
-  const { click } = props;
-  const navigate = useNavigate();
-  const { user: ownUser } = useAuth();
-  const { isLoading, error, data } = useQuery('users', () =>
-    fetch(GET_USERS).then((res) => res.json())
-  );
-  const getUsers = data.filter(
-    (user: any) => user.username !== ownUser.username
-  );
-
-  if (isLoading)
-    return (
-      <>
-        {[...Array(5)].map((_, index) => (
-          <Flex key={index} p="4" mx="4" alignItems="center">
-            <SkeletonCircle size="10" mr="4" />
-            <Skeleton height="15" width="100px" />
-          </Flex>
-        ))}
-      </>
-    );
-
-  const handleClick = (user: any) => {
-    if (click) {
-      click(user);
-    } else {
-      navigate(`/chat/${user.username}`, { replace: true });
-    }
-  };
-
-  return (
-    <Box overflowY="auto" height="100%">
-      {getUsers.map((user: any) => (
-        <User
-          key={user.username}
-          user={user}
-          onClick={() => handleClick(user)}
-        />
-      ))}
-    </Box>
-  );
-};
-
-interface UserProps extends FlexProps {
-  user: any;
-}
-const User = ({ user, ...rest }: UserProps) => {
-  const { firstname, lastname, avatar, mail } = user;
-  return (
-    <Link
-      href="#"
-      style={{ textDecoration: 'none' }}
-      _focus={{ boxShadow: 'none' }}
-    >
-      <Flex
-        align="center"
-        py="2"
-        px="1"
-        mx="2"
-        borderRadius="lg"
-        role="group"
-        cursor="pointer"
-        _hover={{
-          bg: 'cyan.400',
-          color: 'white',
-        }}
-        {...rest}
-      >
-        <Avatar name={`${firstname} ${lastname}`} src={avatar} mr="4" size="md">
-          <AvatarBadge boxSize="1.25em" bg="green.500" />
-        </Avatar>
-        <Flex flexDirection="column" alignItems="baseline">
-          <Heading size="xs">
-            {firstname} {lastname}
-          </Heading>
-          <Text fontSize="xs">{mail}</Text>
-        </Flex>
-      </Flex>
-    </Link>
   );
 };
 
@@ -179,7 +89,8 @@ interface MobileProps extends FlexProps {
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth.user as UserInterface;
   const handleSignOut = () => {
     authProvider.signout();
     navigate('/');

@@ -63,7 +63,22 @@ const ChatView = () => {
   return (
     <>
       <Flex flexDirection="column">
-        <Box height="65vh" overflowY="auto">
+        <Box
+          height="65vh"
+          overflowY="auto"
+          css={{
+            '&::-webkit-scrollbar': {
+              width: '7px',
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: "gray",
+              borderRadius: '4px',
+            },
+          }}
+        >
           {MESSAGES.map((message, index) => (
             <Message key={index} message={message} isMine={message.isMine} />
           ))}
