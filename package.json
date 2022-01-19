@@ -1,0 +1,15 @@
+{
+  "name": "chat-exam-dhbw-web-engineering",
+  "version": "1.0.0",
+  "repository": "https://github.com/bennymeier/chat-exam-dhbw-web-engineering.git",
+  "author": "Benjamin Meier <meierbe@dhbw-loerrach.de>",
+  "license": "MIT",
+  "scripts": {
+    "frontend": "cd .\\frontend\\ && yarn install && yarn start",
+    "backend": "cd .\\backend\\ && yarn install && yarn start",
+    "start": "concurrently \"yarn frontend\" \"yarn backend\""
+  },
+  "dependencies": {
+    "concurrently": "^7.0.0"
+  }
+}
