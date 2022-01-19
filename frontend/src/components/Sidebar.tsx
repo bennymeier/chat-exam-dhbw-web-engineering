@@ -93,9 +93,15 @@ interface UserListProps {
 }
 export const UserList = (props: UserListProps) => {
   const { click } = props;
+  const navigate = useNavigate();
+  const { user: ownUser } = useAuth();
   const { isLoading, error, data } = useQuery('users', () =>
     fetch(GET_USERS).then((res) => res.json())
   );
+  const getUsers = data.filter(
+    (user: any) => user.username !== ownUser.username
+  );
+
   if (isLoading)
     return (
       <>
@@ -111,12 +117,14 @@ export const UserList = (props: UserListProps) => {
   const handleClick = (user: any) => {
     if (click) {
       click(user);
+    } else {
+      navigate(`/chat/${user.username}`, { replace: true });
     }
   };
 
   return (
     <Box overflowY="auto" height="100%">
-      {data.map((user: any) => (
+      {getUsers.map((user: any) => (
         <User
           key={user.username}
           user={user}
