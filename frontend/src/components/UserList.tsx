@@ -1,9 +1,9 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
-import { useQuery } from 'react-query';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserInterface } from '../types';
-import { GET_USERS } from '../utils';
 import { useAuth } from './AuthProvider';
+import UserApi from '../api/user.api';
 import User from './User';
 
 interface UserListProps {
@@ -12,21 +12,37 @@ interface UserListProps {
 }
 const UserList = (props: UserListProps) => {
   const { click, showAllUser = true } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [data, setData] = useState<UserInterface[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+      try {
+        const res = await UserApi.getAll();
+        setData(res.data);
+      } catch (err) {
+        setIsError(true);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, []);
+
   const navigate = useNavigate();
   const { user: ownUser } = useAuth();
-  const { isLoading, error, data } = useQuery('users', () =>
-    fetch(GET_USERS).then((res) => res.json())
-  );
   const getUsers = () => {
     let users = data;
     if (!showAllUser) {
       users = data.filter(
-        (user: UserInterface) =>
-          user.username !== (ownUser as UserInterface).username
+        (user: UserInterface) => user._id !== (ownUser as UserInterface)._id
       );
     }
     return users;
   };
+  if (isError) return <Box>Fetching users went wrong.</Box>;
 
   if (isLoading)
     return (
@@ -44,7 +60,7 @@ const UserList = (props: UserListProps) => {
     if (click) {
       click(user);
     } else {
-      navigate(`/chat/${user.username}`, { replace: true });
+      navigate(`/chat/${user._id}`, { replace: true });
     }
   };
 
@@ -66,11 +82,7 @@ const UserList = (props: UserListProps) => {
       }}
     >
       {getUsers().map((user: any) => (
-        <User
-          key={user.username}
-          user={user}
-          onClick={() => handleClick(user)}
-        />
+        <User key={user._id} user={user} onClick={() => handleClick(user)} />
       ))}
     </Box>
   );
