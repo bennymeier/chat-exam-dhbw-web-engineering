@@ -5,8 +5,8 @@ class RoomApi {
   getAll() {
     return API.get('/rooms');
   }
-  get(id: string) {
-    return API.get(`/room/${id}`);
+  getByParticipants(participants: string[]) {
+    return API.get(`/room/${JSON.stringify(participants)}`);
   }
   create(data: RoomInterface) {
     return API.post('/room', data);

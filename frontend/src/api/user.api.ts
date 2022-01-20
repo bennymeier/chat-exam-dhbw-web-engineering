@@ -8,6 +8,9 @@ class UserApi {
   get(id: string) {
     return API.get(`/user/${id}`);
   }
+  getByParticipants(participants: string[]) {
+    return API.get(`/users/${JSON.stringify(participants)}`);
+  }
   create(data: UserInterface) {
     return API.post('/user', data);
   }

@@ -2,6 +2,7 @@ import { Box, Flex, IconButton, Divider } from '@chakra-ui/react';
 import MessageBox from './MessageBox';
 import { FaTelegramPlane } from 'react-icons/fa';
 import Message from './Message';
+import { RoomInterface } from '../types';
 
 const MESSAGES = [
   {
@@ -59,7 +60,11 @@ const MESSAGES = [
     isMine: false,
   },
 ];
-const ChatView = () => {
+
+interface ChatViewProps {
+  currentRoom?: RoomInterface;
+}
+const ChatView = ({ ...rest }: ChatViewProps) => {
   return (
     <>
       <Flex flexDirection="column">
@@ -74,7 +79,7 @@ const ChatView = () => {
               width: '6px',
             },
             '&::-webkit-scrollbar-thumb': {
-              background: "gray",
+              background: 'gray',
               borderRadius: '4px',
             },
           }}

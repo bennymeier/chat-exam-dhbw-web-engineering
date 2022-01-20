@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   IconButton,
   Avatar,
@@ -20,15 +20,23 @@ import {
   MenuItem,
   MenuList,
   AvatarBadge,
+  Heading,
 } from '@chakra-ui/react';
 import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
 import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import UserList from './UserList';
-import { UserInterface } from '../types';
+import { RoomInterface, UserInterface } from '../types';
+import UserApi from '../api/user.api';
 
-const Sidebar = ({ children }: { children: ReactNode }) => {
+interface SidebarProps {
+  children: ReactNode;
+  currentRoom?: RoomInterface;
+}
+
+const Sidebar = ({ children, ...props }: SidebarProps) => {
+  const { currentRoom } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
@@ -49,7 +57,7 @@ const Sidebar = ({ children }: { children: ReactNode }) => {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <MobileNav onOpen={onOpen} />
+      <Navbar onOpen={onOpen} currentRoom={currentRoom} />
       <Box ml={{ base: 0, md: 60 }} p="4">
         {children}
       </Box>
@@ -57,11 +65,11 @@ const Sidebar = ({ children }: { children: ReactNode }) => {
   );
 };
 
-interface SidebarProps extends BoxProps {
+interface SidebarContentProps extends BoxProps {
   onClose: () => void;
 }
 
-const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
   return (
     <Box
       transition="3s ease"
@@ -71,7 +79,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       w={{ base: 'full', md: 60 }}
       pos="fixed"
       h="full"
-      {...rest}
+      {...props}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
@@ -84,10 +92,13 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   );
 };
 
-interface MobileProps extends FlexProps {
+interface NavbarProps extends FlexProps {
   onOpen: () => void;
+  currentRoom?: RoomInterface;
 }
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+const Navbar = ({ onOpen, ...props }: NavbarProps) => {
+  const { currentRoom } = props;
+  const [participants, setParticipants] = useState<UserInterface[]>([]);
   const navigate = useNavigate();
   const auth = useAuth();
   const user = auth.user as UserInterface;
@@ -95,6 +106,31 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     authProvider.signout();
     navigate('/');
   };
+  const getParticipantsName = () => {
+    return participants.map(
+      (participant) => `${participant.firstname} ${participant.lastname}`
+    );
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await UserApi.getByParticipants(
+          (currentRoom as RoomInterface).participants
+        );
+        if (res.data?.users) {
+          const filterParticipants = res.data.users.filter(
+            (participant: UserInterface) => participant._id !== user._id
+          );
+          setParticipants(filterParticipants);
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    };
+    if (currentRoom?.participants) {
+      fetchData();
+    }
+  }, [currentRoom]);
 
   return (
     <Flex
@@ -106,7 +142,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
       justifyContent={{ base: 'space-between', md: 'flex-end' }}
-      {...rest}
     >
       <IconButton
         display={{ base: 'flex', md: 'none' }}
@@ -122,10 +157,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         fontFamily="monospace"
         fontWeight="bold"
       >
-        Logo
+        Slack Chat
       </Text>
 
       <HStack spacing={{ base: '0', md: '6' }}>
+        <Heading size="xs">{getParticipantsName()}</Heading>
         <IconButton
           size="lg"
           variant="ghost"
