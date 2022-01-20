@@ -2,28 +2,24 @@ import mongoose, { Document, Types } from 'mongoose';
 const { Schema } = mongoose;
 
 export interface MessageInterface extends Document {
+  senderId: Types.ObjectId;
   roomId: Types.ObjectId;
-  userId: Types.ObjectId;
-  messageBody: string;
-  isDeleted: boolean;
+  content: string;
 }
 
 const MessageSchema = new Schema<MessageInterface>(
   {
+    senderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'Sender ID is missing.'],
+    },
     roomId: {
       type: Schema.Types.ObjectId,
       ref: 'Room',
-      required: [true, 'RoomId is missing.'],
+      required: [true, 'Room ID is missing.'],
     },
-    userId: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: [true, 'UserId is missing.'],
-      },
-    ],
-    messageBody: { type: String, required: [true, 'Message Body is missing.'] },
-    isDeleted: { type: Boolean, default: false },
+    content: { type: String, required: [true, 'Content is missing.'] },
   },
   { timestamps: true }
 );

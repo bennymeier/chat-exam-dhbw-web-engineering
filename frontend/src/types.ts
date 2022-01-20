@@ -9,25 +9,21 @@ interface MongoSchema {
 export interface UserInterface extends MongoSchema {
   username: string;
   mail: string;
-  password?: string;
   firstname: string;
   lastname: string;
   avatar?: string;
   status: Status;
   chats: string[];
-  lastChatId: string;
+  lastRoomId: string;
 }
 
 export interface RoomInterface extends MongoSchema {
-  name: string;
-  roomId: string;
-  userIds: string[];
-  messageIds: string[];
+  name?: string;
+  participants: string[];
 }
 
 export interface MessageInterface extends MongoSchema {
+  senderId: string;
   roomId: string;
-  userId: string;
-  messageBody: string;
-  isDeleted: boolean;
+  content: string;
 }

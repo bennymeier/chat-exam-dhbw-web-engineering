@@ -5,13 +5,12 @@ export type Status = 'Online' | 'Busy' | 'Do not disturb' | 'Away' | 'Offline';
 export interface UserInterface extends Document {
   username: string;
   mail: string;
-  password?: string;
   firstname: string;
   lastname: string;
   avatar?: string;
   status: Status;
   chats: string[];
-  lastChatId: Types.ObjectId;
+  lastRoomId: Types.ObjectId;
 }
 
 const UserSchema = new Schema<UserInterface>(
@@ -25,11 +24,6 @@ const UserSchema = new Schema<UserInterface>(
       type: String,
       unique: true,
       required: [true, 'E-Mail is missing.'],
-    },
-    password: {
-      type: String,
-      // required: [true, 'Please use a password.'],
-      //   default: 'abc123',
     },
     firstname: {
       type: String,
@@ -46,8 +40,9 @@ const UserSchema = new Schema<UserInterface>(
       type: String,
     },
     chats: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    lastChatId: {
-      type: String,
+    lastRoomId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Room',
     },
   },
   { timestamps: true }
