@@ -51,9 +51,8 @@ const getUsersByParticipants = async (req: Request, res: Response) => {
   const participants = JSON.parse(req.params.participants);
   try {
     const users = await User.find().where('_id').in(participants);
-    return res.status(200).json({ isNew: false, users });
+    return res.status(200).json(users);
   } catch (err) {
-    console.log(err);
     return res.status(404).json({ error: "Room doesn't exist!" });
   }
 };

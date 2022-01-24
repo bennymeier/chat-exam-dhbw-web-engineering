@@ -1,70 +1,66 @@
-import { Box, Flex, IconButton, Divider } from '@chakra-ui/react';
+import { Box, Flex, Divider } from '@chakra-ui/react';
 import MessageBox from './MessageBox';
-import { FaTelegramPlane } from 'react-icons/fa';
 import Message from './Message';
-import { RoomInterface } from '../types';
-
-const MESSAGES = [
-  {
-    text: 'lorem ipsum dolor sit atmet lorem sit atmet dolor sit atmet lol ripsum dolor',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: true,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: true,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet atmet lorem sit atmet dolor sit atmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sit',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: false,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: false,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet atmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sit',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: true,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet atmet lorem sit atmet dolor sit',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: true,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: false,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmetatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sitatmet lorem sit atmet dolor sit',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: true,
-  },
-  {
-    text: 'lorem ipsum dolor sit atmet',
-    sender: 'Benjamin Meier',
-    createdAt: new Date(),
-    isMine: false,
-  },
-];
+import { MessageInterface, RoomInterface, UserInterface } from '../types';
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import MessageApi from '../api/message.api';
+import UserApi from '../api/user.api';
 
 interface ChatViewProps {
-  currentRoom?: RoomInterface;
+  currentRoom: RoomInterface;
+  currentUser: UserInterface;
 }
-const ChatView = ({ ...rest }: ChatViewProps) => {
+const ChatView: React.FC<ChatViewProps> = (props) => {
+  const { currentRoom, currentUser } = props;
+  const [messages, setMessages] = useState<MessageInterface[]>([]);
+  const [participants, setParticipants] = useState<UserInterface[]>([]);
+  const [participantsLoading, setParticipantsLoading] = useState(true);
+  const { id: chatPartnerId } = useParams();
+  const messagesContainer = useRef<HTMLDivElement>(null);
+  const scrollToBottom = () => {
+    if (messagesContainer?.current) {
+      const shouldScroll =
+        messagesContainer.current.scrollTop +
+          messagesContainer.current.clientHeight ===
+        messagesContainer.current.scrollHeight;
+      if (!shouldScroll) {
+        messagesContainer.current.scrollTop =
+          messagesContainer.current.scrollHeight;
+      }
+    }
+  };
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const res = await MessageApi.getMessagesByRoomId(currentRoom._id);
+        setMessages(res.data);
+        scrollToBottom();
+      } catch (err) {
+        console.warn(err);
+      }
+    };
+    // Maybe check if all messages has loaded
+    // Maybe check if the user already scrolled, so turn it off
+    fetchMessages();
+  }, [chatPartnerId, currentRoom?._id]);
+
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        setParticipantsLoading(true);
+        const res = await UserApi.getByParticipants(currentRoom.participants);
+        setParticipants(res.data);
+        setParticipantsLoading(false);
+      } catch (err) {
+        console.warn(err);
+      }
+    };
+    if (!!currentRoom?.participants?.length) {
+      fetchParticipants();
+    }
+  }, [currentRoom?.participants]);
+
   return (
     <>
       <Flex flexDirection="column">
@@ -83,17 +79,21 @@ const ChatView = ({ ...rest }: ChatViewProps) => {
               borderRadius: '4px',
             },
           }}
+          ref={messagesContainer}
         >
-          {MESSAGES.map((message, index) => (
-            <Message key={index} message={message} isMine={message.isMine} />
-          ))}
+          {!participantsLoading &&
+            messages.map((message) => (
+              <Message
+                key={message._id}
+                message={message}
+                participants={participants}
+                currentUser={currentUser}
+              />
+            ))}
         </Box>
         <Divider borderBottomWidth="3px" mb="1em" />
         <Box>
-          <Flex alignItems="center" gap="1em">
-            <MessageBox />
-            <IconButton icon={<FaTelegramPlane />} aria-label="Send Message" />
-          </Flex>
+          <MessageBox currentRoom={currentRoom} currentUser={currentUser} />
         </Box>
       </Flex>
     </>

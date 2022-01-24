@@ -47,4 +47,20 @@ const getMessages = async (req: Request, res: Response) => {
   }
 };
 
-export default { createMessage, updateMessage, deleteMessage, getMessageById, getMessages };
+const getMessagesByRoomId = async (req: Request, res: Response) => {
+  try {
+    const messages = await Message.find({ roomId: req.params.id });
+    return res.status(200).json(messages);
+  } catch {
+    return res.status(404).json({ error: 'Messages not found!' });
+  }
+};
+
+export default {
+  createMessage,
+  updateMessage,
+  deleteMessage,
+  getMessageById,
+  getMessages,
+  getMessagesByRoomId,
+};

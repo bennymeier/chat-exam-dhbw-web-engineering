@@ -8,7 +8,10 @@ class MessageApi {
   get(id: string) {
     return API.get(`/message/${id}`);
   }
-  create(data: MessageInterface) {
+  getMessagesByRoomId(roomId: string) {
+    return API.get(`/messages/${roomId}`);
+  }
+  create(data: Partial<MessageInterface>) {
     return API.post('/message', data);
   }
   update(data: MessageInterface, id: string) {
