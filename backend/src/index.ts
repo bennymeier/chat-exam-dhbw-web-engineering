@@ -1,38 +1,55 @@
 import express from 'express';
 import cors from 'cors';
-import { Server } from 'socket.io';
-import http from 'http';
-import { establishConnection, insertDemoData } from './db.connection';
+import { establishMongoDBConnection, insertDemoData } from './db.connection';
 import RoomRouter from './routers/room.router';
 import UserRouter from './routers/user.router';
 import MessageRouter from './routers/message.router';
+import { establishSocketConnection } from './socket.connection';
+import { MessageInterface } from './models/message.model';
+import { UserInterface } from './models/user.model';
+import Room, { RoomInterface } from './models/room.model';
 
 const apiPort = 3001 || process.env.PORT;
-const socketPort = 3002;
 
 const app = express();
-const socketServer = http.createServer(app);
-const io = new Server(socketServer, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
-});
+const io = establishSocketConnection(app);
 
 app.use(cors());
 app.use(express.json());
 app.use('/api', [RoomRouter, UserRouter, MessageRouter]);
 
-establishConnection();
+establishMongoDBConnection();
 // insertDemoData();
 app.listen(apiPort, () => console.log('Server listening on port: ', apiPort));
 
-socketServer.listen(socketPort, () =>
-  console.log('Websockets listening on port: ', socketPort)
-);
-
 io.on('connection', (socket) => {
-  socket.on('message', (msg) => {
-    console.log('MSG: ', msg);
+  const currentUser = socket.handshake.auth;
+  socket.on('message', ({ message }: { message: MessageInterface }) => {
+    socket.to(message.roomId.toString()).emit('message', message);
+  });
+
+  // User joined room
+  socket.on('room:join', (room: RoomInterface) => {
+    socket.join(room._id.toString());
+  });
+
+  // User left room
+  socket.on('room:leave', (room: RoomInterface) => {
+    socket.leave(room._id.toString());
+  });
+
+  // Online Status changed
+  socket.on('status:change', () => {
+    console.log('Someone changed his status.');
+  });
+
+  // Avatar changed
+  socket.on('avatar:change', () => {
+    console.log('Someone changed his avatar.');
+  });
+
+  // User is typing
+  socket.on('user:typing', () => {
+    console.log('User is typing.');
   });
 });

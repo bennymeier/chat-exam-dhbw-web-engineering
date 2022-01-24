@@ -56,10 +56,24 @@ const getRooms = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Get all rooms where the given ID is in the participant array.
+ */
+const getRoomsWhereIdIsParticipant = async (req: Request, res: Response) => {
+  const id = JSON.parse(req.params.id);
+  try {
+    const rooms = await Room.find({}).where("participants").in(id)
+    return res.status(200).json(rooms);
+  } catch {
+    return res.status(404).json({ error: 'Rooms not found!' });
+  }
+};
+
 export default {
   createRoom,
   updateRoom,
   deleteRoom,
   getRoomByParticipants,
   getRooms,
+  getRoomsWhereIdIsParticipant
 };

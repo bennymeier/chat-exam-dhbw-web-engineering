@@ -5,7 +5,7 @@ import { USERS } from './demo.data';
 /**
  * Establish connection to MongoDB Atlas.
  */
-export const establishConnection = async () => {
+export const establishMongoDBConnection = async () => {
   try {
     await mongoose.connect(
       'mongodb+srv://benny:ew5m1BHPC7voOhUB@cluster0.t5z8n.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'

@@ -9,7 +9,6 @@ export interface UserInterface extends Document {
   lastname: string;
   avatar?: string;
   status: Status;
-  chats: string[];
   lastRoomId: Types.ObjectId;
 }
 
@@ -39,7 +38,6 @@ const UserSchema = new Schema<UserInterface>(
     status: {
       type: String,
     },
-    chats: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     lastRoomId: {
       type: Schema.Types.ObjectId,
       ref: 'Room',

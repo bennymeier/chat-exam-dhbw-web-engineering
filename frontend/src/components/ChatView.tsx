@@ -2,12 +2,12 @@ import { Box, Flex, Divider } from '@chakra-ui/react';
 import MessageBox from './MessageBox';
 import Message from './Message';
 import { MessageInterface, RoomInterface, UserInterface } from '../types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
 import UserApi from '../api/user.api';
 import EmptyRoom from './EmptyRoom';
-import { useSocket } from './useSocketHook';
+import { useSocket } from './SocketProvider';
 
 interface ChatViewProps {
   currentRoom: RoomInterface;
@@ -20,17 +20,6 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   const [participantsLoading, setParticipantsLoading] = useState(true);
   const { id: chatPartnerId } = useParams();
   const socket = useSocket();
-  const onMessage = useCallback((message) => {
-    console.log('MSG: ', message);
-  }, []);
-
-  useEffect(() => {
-    socket.on('message', onMessage);
-    return () => {
-      socket.off('message', onMessage);
-    };
-  }, [socket, onMessage]);
-
   const messagesContainer = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     if (messagesContainer?.current) {
@@ -45,8 +34,10 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
     }
   };
   const handleNewMessage = (message: MessageInterface) => {
-    setMessages([...messages, message]);
-    socket.emit('message', message);
+    setMessages((prevMessages) => [...prevMessages, message]);
+    socket.emit('message', {
+      message,
+    });
   };
 
   useEffect(() => {
@@ -58,10 +49,21 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
         console.warn(err);
       }
     };
-    // Maybe check if all messages has loaded
-    // Maybe check if the user already scrolled, so turn it off
-    fetchMessages();
+    if (currentRoom?._id) {
+      fetchMessages();
+    }
   }, [chatPartnerId, currentRoom?._id]);
+
+  useEffect(() => {
+    if (currentRoom?._id) {
+      console.log('Join room ', currentRoom._id);
+      socket.emit('room:join', currentRoom);
+    }
+    return () => {
+      console.log('Leave room');
+      socket.emit('room:leave', currentRoom);
+    };
+  }, [currentRoom]);
 
   useEffect(() => {
     const fetchParticipants = async () => {
@@ -84,19 +86,25 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   }, [messages]);
 
   useEffect(() => {
-    socket.on('connect', () =>
-      console.log('%cSocket connected.', 'color:green;')
-    );
-    socket.on('disconnect', () =>
-      console.log('%cSocket disconnected.', 'color:red;')
-    );
-    socket.on('reconnect', () =>
-      console.log('%cSocket reconnected.', 'color:green;')
-    );
+    socket.on('connect', () => {
+      console.log('%cSocket connected.', 'color:green;');
+    });
+    socket.on('disconnect', () => {
+      console.log('%cSocket disconnected.', 'color:red;');
+    });
+    socket.on('reconnect', () => {
+      console.log('%cSocket reconnected.', 'color:green;');
+    });
+    socket.on('message', (message: MessageInterface) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
     return () => {
       socket.disconnect();
+      socket.off('room:join');
+      socket.off('room:leave');
+      socket.off('message');
     };
-  }, []);
+  }, [socket]);
 
   return (
     <>
