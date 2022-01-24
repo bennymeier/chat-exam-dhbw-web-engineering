@@ -18,6 +18,7 @@
 - Express
 - TypeScript
 - Cors
+- Socket.io
 
 #### Frontend
 
@@ -26,6 +27,7 @@
 - TypeScript
 - Axios
 - Chakra-UI
+- Socket.io
 
 ### How to install:
 

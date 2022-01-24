@@ -7,33 +7,36 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 import AuthProvider from './components/AuthProvider';
 import RequireAuth from './components/RequireAuth';
+import { SocketProvider } from './components/SocketProvider';
 
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route
-              path="/chat"
-              element={
-                <RequireAuth>
-                  <App />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/chat/:id"
-              element={
-                <RequireAuth>
-                  <App />
-                </RequireAuth>
-              }
-            />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+      <SocketProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              <Route
+                path="/chat"
+                element={
+                  <RequireAuth>
+                    <App />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/chat/:id"
+                element={
+                  <RequireAuth>
+                    <App />
+                  </RequireAuth>
+                }
+              />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </SocketProvider>
     </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')

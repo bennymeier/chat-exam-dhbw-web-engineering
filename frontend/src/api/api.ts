@@ -5,3 +5,4 @@ export const API = axios.create({
   baseURL: API_URL,
   responseType: 'json',
 });
+export const SOCKET_URL = 'http://localhost:3002';

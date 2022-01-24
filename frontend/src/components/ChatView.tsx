@@ -2,11 +2,12 @@ import { Box, Flex, Divider } from '@chakra-ui/react';
 import MessageBox from './MessageBox';
 import Message from './Message';
 import { MessageInterface, RoomInterface, UserInterface } from '../types';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
 import UserApi from '../api/user.api';
 import EmptyRoom from './EmptyRoom';
+import { useSocket } from './useSocketHook';
 
 interface ChatViewProps {
   currentRoom: RoomInterface;
@@ -18,6 +19,18 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   const [participants, setParticipants] = useState<UserInterface[]>([]);
   const [participantsLoading, setParticipantsLoading] = useState(true);
   const { id: chatPartnerId } = useParams();
+  const socket = useSocket();
+  const onMessage = useCallback((message) => {
+    console.log('MSG: ', message);
+  }, []);
+
+  useEffect(() => {
+    socket.on('message', onMessage);
+    return () => {
+      socket.off('message', onMessage);
+    };
+  }, [socket, onMessage]);
+
   const messagesContainer = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     if (messagesContainer?.current) {
@@ -33,6 +46,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   };
   const handleNewMessage = (message: MessageInterface) => {
     setMessages([...messages, message]);
+    socket.emit('message', message);
   };
 
   useEffect(() => {
@@ -68,6 +82,21 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   useEffect(() => {
     setTimeout(() => scrollToBottom(), 50);
   }, [messages]);
+
+  useEffect(() => {
+    socket.on('connect', () =>
+      console.log('%cSocket connected.', 'color:green;')
+    );
+    socket.on('disconnect', () =>
+      console.log('%cSocket disconnected.', 'color:red;')
+    );
+    socket.on('reconnect', () =>
+      console.log('%cSocket reconnected.', 'color:green;')
+    );
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <>
