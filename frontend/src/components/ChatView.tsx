@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
 import UserApi from '../api/user.api';
+import EmptyRoom from './EmptyRoom';
 
 interface ChatViewProps {
   currentRoom: RoomInterface;
@@ -30,12 +31,15 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
       }
     }
   };
+  const handleNewMessage = (message: MessageInterface) => {
+    setMessages([...messages, message]);
+  };
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const res = await MessageApi.getMessagesByRoomId(currentRoom._id);
         setMessages(res.data);
-        scrollToBottom();
       } catch (err) {
         console.warn(err);
       }
@@ -61,6 +65,10 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
     }
   }, [currentRoom?.participants]);
 
+  useEffect(() => {
+    setTimeout(() => scrollToBottom(), 50);
+  }, [messages]);
+
   return (
     <>
       <Flex flexDirection="column">
@@ -81,6 +89,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
           }}
           ref={messagesContainer}
         >
+          {!!!messages.length && <EmptyRoom />}
           {!participantsLoading &&
             messages.map((message) => (
               <Message
@@ -93,7 +102,11 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
         </Box>
         <Divider borderBottomWidth="3px" mb="1em" />
         <Box>
-          <MessageBox currentRoom={currentRoom} currentUser={currentUser} />
+          <MessageBox
+            currentRoom={currentRoom}
+            currentUser={currentUser}
+            messageSentCallback={handleNewMessage}
+          />
         </Box>
       </Flex>
     </>

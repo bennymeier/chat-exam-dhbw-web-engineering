@@ -106,6 +106,8 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
     authProvider.signout();
     navigate('/');
   };
+  console.log('Participants ', participants);
+  console.log('Current Room: ', currentRoom);
   const getParticipantsName = () => {
     return participants.map(
       (participant) => `${participant.firstname} ${participant.lastname}`
@@ -117,8 +119,9 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
         const res = await UserApi.getByParticipants(
           (currentRoom as RoomInterface).participants
         );
-        if (res.data?.users) {
-          const filterParticipants = res.data.users.filter(
+        console.log('Participants fetch: ', res.data);
+        if (res.data) {
+          const filterParticipants = res.data.filter(
             (participant: UserInterface) => participant._id !== user._id
           );
           setParticipants(filterParticipants);
@@ -130,7 +133,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
     if (currentRoom?.participants) {
       fetchData();
     }
-  }, [currentRoom]);
+  }, [currentRoom?._id]);
 
   return (
     <Flex

@@ -7,9 +7,10 @@ import MessageApi from '../api/message.api';
 interface MessageBoxProps {
   currentRoom: RoomInterface;
   currentUser: UserInterface;
+  messageSentCallback: (message: MessageInterface) => void;
 }
 const MessageBox: React.FC<MessageBoxProps> = (props) => {
-  const { currentRoom, currentUser } = props;
+  const { currentRoom, currentUser, messageSentCallback } = props;
   const [value, setValue] = useState('');
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -24,8 +25,9 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
       content: value,
     };
     try {
-      await MessageApi.create(data);
+      const res = await MessageApi.create(data);
       setValue('');
+      messageSentCallback(res.data);
     } catch (err) {
       console.warn(err);
     }
