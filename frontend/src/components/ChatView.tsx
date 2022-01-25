@@ -137,7 +137,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
               />
             ))}
         </Box>
-        <Divider borderBottomWidth="3px" mb="1em" />
+        <Divider borderBottomWidth="3px" />
         <Box>
           <MessageBox
             currentRoom={currentRoom}

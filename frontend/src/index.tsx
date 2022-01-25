@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 import AuthProvider from './components/AuthProvider';
 import RequireAuth from './components/RequireAuth';
+import './index.css';
 
 ReactDOM.render(
   <React.StrictMode>

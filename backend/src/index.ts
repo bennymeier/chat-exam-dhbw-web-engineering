@@ -24,9 +24,6 @@ app.listen(apiPort, () => console.log('Server listening on port: ', apiPort));
 
 io.on('connection', (socket) => {
   const currentUser = socket.handshake.auth;
-  socket.on('message', ({ message }: { message: MessageInterface }) => {
-    socket.to(message.roomId.toString()).emit('message', message);
-  });
 
   // User joined room
   socket.on('room:join', (room: RoomInterface) => {
@@ -36,6 +33,11 @@ io.on('connection', (socket) => {
   // User left room
   socket.on('room:leave', (room: RoomInterface) => {
     socket.leave(room._id.toString());
+  });
+
+  // User sent message
+  socket.on('message', ({ message }: { message: MessageInterface }) => {
+    socket.to(message.roomId.toString()).emit('message', message);
   });
 
   // Online Status changed
