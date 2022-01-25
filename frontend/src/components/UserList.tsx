@@ -1,10 +1,11 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserInterface } from '../types';
+import { StatusInterface, UserInterface } from '../types';
 import { useAuth } from './AuthProvider';
 import UserApi from '../api/user.api';
 import User from './User';
+import { useSocket } from './SocketProvider';
 
 interface UserListProps {
   click?: (user: UserInterface) => void;
@@ -12,9 +13,42 @@ interface UserListProps {
 }
 const UserList = (props: UserListProps) => {
   const { click, showAllUser = true } = props;
+  const socket = useSocket();
+  const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [data, setData] = useState<UserInterface[]>([]);
+  const [users, setUsers] = useState<UserInterface[]>([]);
+  const getUsers = () => {
+    let allUsers = users;
+    if (!showAllUser) {
+      allUsers = allUsers.filter(
+        (user: UserInterface) => user._id !== (currentUser as UserInterface)._id
+      );
+    }
+    return allUsers;
+  };
+
+  useEffect(() => {
+    socket.on(
+      'status:change',
+      ({ user, status }: { user: UserInterface; status: StatusInterface }) => {
+        const allUsers = users.map((userObj) => {
+          if (userObj._id === user._id) {
+            return { ...userObj, status: status.id };
+          }
+          return userObj;
+        });
+        setUsers(allUsers);
+        console.log(
+          `${user.firstname} ${user.lastname} changed his status to ${status.text}`
+        );
+      }
+    );
+    return () => {
+      socket.off('status:change');
+    };
+  }, [socket, users]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,7 +56,7 @@ const UserList = (props: UserListProps) => {
       setIsLoading(true);
       try {
         const res = await UserApi.getAll();
-        setData(res.data);
+        setUsers(res.data);
       } catch (err) {
         setIsError(true);
       }
@@ -31,17 +65,6 @@ const UserList = (props: UserListProps) => {
     fetchData();
   }, []);
 
-  const navigate = useNavigate();
-  const { user: ownUser } = useAuth();
-  const getUsers = () => {
-    let users = data;
-    if (!showAllUser) {
-      users = data.filter(
-        (user: UserInterface) => user._id !== (ownUser as UserInterface)._id
-      );
-    }
-    return users;
-  };
   if (isError) return <Box>Fetching users went wrong.</Box>;
 
   if (isLoading)
@@ -81,7 +104,7 @@ const UserList = (props: UserListProps) => {
         },
       }}
     >
-      {getUsers().map((user: any) => (
+      {getUsers().map((user: UserInterface) => (
         <User key={user._id} user={user} onClick={() => handleClick(user)} />
       ))}
     </Box>

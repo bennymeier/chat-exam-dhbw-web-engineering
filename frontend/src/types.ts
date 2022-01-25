@@ -1,4 +1,16 @@
 export type Status = 'Online' | 'Busy' | 'Do not disturb' | 'Away' | 'Offline';
+export interface StatusInterface {
+  id: string;
+  bgColor: string;
+  text: Status | string;
+}
+export const allStatus: StatusInterface[] = [
+  { id: 'online', bgColor: 'green.500', text: 'Online' },
+  { id: 'busy', bgColor: 'red.500', text: 'Busy' },
+  { id: 'dnd', bgColor: 'red.700', text: 'Do not disturb' },
+  { id: 'away', bgColor: 'gray.500', text: 'Away' },
+  { id: 'offline', bgColor: 'gray.700', text: 'Offline' },
+];
 
 interface MongoSchema {
   createdAt: string;
@@ -12,7 +24,7 @@ export interface UserInterface extends MongoSchema {
   firstname: string;
   lastname: string;
   avatar?: string;
-  status: Status;
+  status: Status | string;
   chats: string[];
   lastRoomId: string;
 }

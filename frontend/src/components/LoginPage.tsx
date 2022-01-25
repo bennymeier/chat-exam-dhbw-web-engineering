@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserInterface } from '../types';
 import { useAuth } from './AuthProvider';
 import UserList from './UserList';
+import UserApi from '../api/user.api';
 
 const LoginPage = () => {
   let navigate = useNavigate();
@@ -25,15 +26,22 @@ const LoginPage = () => {
 
   useEffect(() => {
     const user = getUser();
+    // Fetch user to update it in localStorage and get the newest data
+    const fetchUser = async () => {
+      const res = await UserApi.get(user._id);
+      return res.data;
+    };
     if (user) {
-      auth.signin(user);
-      navigate('/chat', { replace: true });
+      fetchUser().then((fetchedUser) => {
+        auth.signin(fetchedUser);
+        navigate('/chat', { replace: true });
+      });
     }
   }, [auth, navigate]);
 
-  if (auth && auth.user) {
-    navigate('/chat', { replace: true });
-  }
+  // if (auth && auth.user) {
+  //   navigate('/chat', { replace: true });
+  // }
 
   return (
     <>

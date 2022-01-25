@@ -1,7 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import {
   IconButton,
-  Avatar,
   Box,
   CloseButton,
   Flex,
@@ -19,16 +18,22 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
-  AvatarBadge,
   Heading,
 } from '@chakra-ui/react';
 import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
 import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { useSocket } from './SocketProvider';
 import UserList from './UserList';
-import { RoomInterface, UserInterface } from '../types';
+import {
+  allStatus,
+  RoomInterface,
+  StatusInterface,
+  UserInterface,
+} from '../types';
 import UserApi from '../api/user.api';
+import Status from './Status';
 
 interface SidebarProps {
   children: ReactNode;
@@ -99,9 +104,10 @@ interface NavbarProps extends FlexProps {
 const Navbar = ({ onOpen, ...props }: NavbarProps) => {
   const { currentRoom } = props;
   const [participants, setParticipants] = useState<UserInterface[]>([]);
-  const navigate = useNavigate();
   const auth = useAuth();
-  const user = auth.user as UserInterface;
+  const [user, setUser] = useState<UserInterface>(auth.user as UserInterface);
+  const navigate = useNavigate();
+  const socket = useSocket();
   const handleSignOut = () => {
     authProvider.signout();
     navigate('/');
@@ -111,6 +117,17 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
       (participant) => `${participant.firstname} ${participant.lastname}`
     );
   };
+  const handleStatusChange = async (status: StatusInterface) => {
+    const userObj = { ...user, status: status.id };
+    try {
+      await UserApi.update(userObj, user._id);
+      socket.emit('status:change', { user, status });
+      setUser(userObj);
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -176,13 +193,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
               _focus={{ boxShadow: 'none' }}
             >
               <HStack>
-                <Avatar
-                  name={`${user.firstname} ${user.lastname}`}
-                  size={'sm'}
-                  src={user.avatar}
-                >
-                  <AvatarBadge boxSize="1.25em" bg="green.500" />
-                </Avatar>
+                <Status user={user} />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"
@@ -203,61 +214,22 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
-              <MenuItem>
-                <Flex alignItems="center" gap="0.5em">
-                  <Box
-                    bgColor="green.500"
-                    borderRadius="50%"
-                    width="16px"
-                    height="16px"
-                  />{' '}
-                  Online
-                </Flex>
-              </MenuItem>
-              <MenuItem>
-                <Flex alignItems="center" gap="0.5em">
-                  <Box
-                    bgColor="red.500"
-                    borderRadius="50%"
-                    width="16px"
-                    height="16px"
-                  />{' '}
-                  Busy
-                </Flex>
-              </MenuItem>
-              <MenuItem>
-                <Flex alignItems="center" gap="0.5em">
-                  <Box
-                    bgColor="red.700"
-                    borderRadius="50%"
-                    width="16px"
-                    height="16px"
-                  />{' '}
-                  Do not disturb
-                </Flex>
-              </MenuItem>
-              <MenuItem>
-                <Flex alignItems="center" gap="0.5em">
-                  <Box
-                    bgColor="gray.500"
-                    borderRadius="50%"
-                    width="16px"
-                    height="16px"
-                  />{' '}
-                  Away
-                </Flex>
-              </MenuItem>
-              <MenuItem>
-                <Flex alignItems="center" gap="0.5em">
-                  <Box
-                    bgColor="gray.700"
-                    borderRadius="50%"
-                    width="16px"
-                    height="16px"
-                  />{' '}
-                  Offline
-                </Flex>
-              </MenuItem>
+              {allStatus.map((status) => (
+                <MenuItem
+                  key={status.id}
+                  onClick={() => handleStatusChange(status)}
+                >
+                  <Flex alignItems="center" gap="0.5em">
+                    <Box
+                      bgColor={status.bgColor}
+                      borderRadius="50%"
+                      width="16px"
+                      height="16px"
+                    />{' '}
+                    {status.text}
+                  </Flex>
+                </MenuItem>
+              ))}
               <MenuDivider />
               <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>

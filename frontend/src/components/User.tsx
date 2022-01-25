@@ -1,18 +1,12 @@
-import {
-  FlexProps,
-  Flex,
-  Avatar,
-  AvatarBadge,
-  Heading,
-  Text,
-} from '@chakra-ui/react';
+import { FlexProps, Flex, Heading, Text } from '@chakra-ui/react';
 import { UserInterface } from '../types';
+import Status from './Status';
 
 interface UserProps extends FlexProps {
   user: UserInterface;
 }
 const User = ({ user, ...rest }: UserProps) => {
-  const { firstname, lastname, avatar, mail } = user;
+  const { firstname, lastname, mail } = user;
   return (
     <Flex
       align="center"
@@ -28,9 +22,7 @@ const User = ({ user, ...rest }: UserProps) => {
       }}
       {...rest}
     >
-      <Avatar name={`${firstname} ${lastname}`} src={avatar} mr="4" size="md">
-        <AvatarBadge boxSize="1.25em" bg="green.500" />
-      </Avatar>
+      <Status user={user} />
       <Flex flexDirection="column" alignItems="baseline">
         <Heading size="xs">
           {firstname} {lastname}

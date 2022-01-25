@@ -41,9 +41,12 @@ io.on('connection', (socket) => {
   });
 
   // Online Status changed
-  socket.on('status:change', () => {
-    console.log('Someone changed his status.');
-  });
+  socket.on(
+    'status:change',
+    ({ user, status }: { user: UserInterface; status: any }) => {
+      socket.broadcast.emit('status:change', { user, status });
+    }
+  );
 
   // Avatar changed
   socket.on('avatar:change', () => {

@@ -1,14 +1,13 @@
 import mongoose, { Document, Types } from 'mongoose';
 const { Schema } = mongoose;
 
-export type Status = 'Online' | 'Busy' | 'Do not disturb' | 'Away' | 'Offline';
 export interface UserInterface extends Document {
   username: string;
   mail: string;
   firstname: string;
   lastname: string;
   avatar?: string;
-  status: Status;
+  status: string;
   lastRoomId: Types.ObjectId;
 }
 
@@ -37,6 +36,7 @@ const UserSchema = new Schema<UserInterface>(
     },
     status: {
       type: String,
+      default: 'offline',
     },
     lastRoomId: {
       type: Schema.Types.ObjectId,
