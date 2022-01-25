@@ -49,7 +49,16 @@ io.on('connection', (socket) => {
   });
 
   // User is typing
-  socket.on('user:typing', () => {
-    console.log('User is typing.');
-  });
+  socket.on(
+    'user:typing',
+    ({
+      currentUser,
+      currentRoom,
+    }: {
+      currentUser: UserInterface;
+      currentRoom: RoomInterface;
+    }) => {
+      socket.to(currentRoom._id).emit('user:typing', [currentUser]);
+    }
+  );
 });
