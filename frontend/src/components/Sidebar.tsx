@@ -19,7 +19,22 @@ import {
   MenuItem,
   MenuList,
   Heading,
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  FormControl,
+  FormLabel,
+  Input,
+  Stack,
+  Avatar,
+  AvatarBadge,
 } from '@chakra-ui/react';
+import { SmallCloseIcon } from '@chakra-ui/icons';
 import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
 import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
@@ -103,6 +118,7 @@ interface NavbarProps extends FlexProps {
 }
 const Navbar = ({ onOpen, ...props }: NavbarProps) => {
   const { currentRoom } = props;
+  const { isOpen, onOpen: onEditProfileOpen, onClose } = useDisclosure();
   const [participants, setParticipants] = useState<UserInterface[]>([]);
   const auth = useAuth();
   const [user, setUser] = useState<UserInterface>(auth.user as UserInterface);
@@ -150,93 +166,185 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
   }, [currentRoom?._id]);
 
   return (
-    <Flex
-      ml={{ base: 0, md: 60 }}
-      px={{ base: 4, md: 4 }}
-      height="20"
-      alignItems="center"
-      bg={useColorModeValue('white', 'gray.900')}
-      borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
-      justifyContent={{ base: 'space-between', md: 'flex-end' }}
-    >
-      <IconButton
-        display={{ base: 'flex', md: 'none' }}
-        onClick={onOpen}
-        variant="outline"
-        aria-label="open menu"
-        icon={<FiMenu />}
-      />
-
-      <Text
-        display={{ base: 'flex', md: 'none' }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
+    <>
+      <Flex
+        ml={{ base: 0, md: 60 }}
+        px={{ base: 4, md: 4 }}
+        height="20"
+        alignItems="center"
+        bg={useColorModeValue('white', 'gray.900')}
+        borderBottomWidth="1px"
+        borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+        justifyContent={{ base: 'space-between', md: 'flex-end' }}
       >
-        Slack Chat
-      </Text>
-
-      <HStack spacing={{ base: '0', md: '6' }}>
-        <Heading size="xs">{getParticipantsName()}</Heading>
         <IconButton
-          size="lg"
-          variant="ghost"
+          display={{ base: 'flex', md: 'none' }}
+          onClick={onOpen}
+          variant="outline"
           aria-label="open menu"
-          icon={<FiBell />}
+          icon={<FiMenu />}
         />
-        <Flex alignItems={'center'}>
-          <Menu>
-            <MenuButton
-              py={2}
-              transition="all 0.3s"
-              _focus={{ boxShadow: 'none' }}
-            >
-              <HStack>
-                <Status user={user} />
-                <VStack
-                  display={{ base: 'none', md: 'flex' }}
-                  alignItems="flex-start"
-                  spacing="1px"
-                  ml="2"
+
+        <Text
+          display={{ base: 'flex', md: 'none' }}
+          fontSize="2xl"
+          fontFamily="monospace"
+          fontWeight="bold"
+        >
+          Slack Chat
+        </Text>
+
+        <HStack spacing={{ base: '0', md: '6' }}>
+          <Heading size="xs">{getParticipantsName()}</Heading>
+          <IconButton
+            size="lg"
+            variant="ghost"
+            aria-label="open menu"
+            icon={<FiBell />}
+          />
+          <Flex alignItems={'center'}>
+            <Menu>
+              <MenuButton
+                py={2}
+                transition="all 0.3s"
+                _focus={{ boxShadow: 'none' }}
+              >
+                <HStack>
+                  <Status user={user} />
+                  <VStack
+                    display={{ base: 'none', md: 'flex' }}
+                    alignItems="flex-start"
+                    spacing="1px"
+                    ml="2"
+                  >
+                    <Text fontSize="sm">{`${user.firstname} ${user.lastname}`}</Text>
+                    <Text fontSize="xs" color="gray.600">
+                      {user.mail}
+                    </Text>
+                  </VStack>
+                  <Box display={{ base: 'none', md: 'flex' }}>
+                    <FiChevronDown />
+                  </Box>
+                </HStack>
+              </MenuButton>
+              <MenuList
+                bg={useColorModeValue('white', 'gray.900')}
+                borderColor={useColorModeValue('gray.200', 'gray.700')}
+              >
+                <MenuItem onClick={onEditProfileOpen}>Edit Profile</MenuItem>
+                <MenuDivider />
+                {allStatus.map((status) => (
+                  <MenuItem
+                    key={status.id}
+                    onClick={() => handleStatusChange(status)}
+                  >
+                    <Flex alignItems="center" gap="0.5em">
+                      <Box
+                        bgColor={status.bgColor}
+                        borderRadius="50%"
+                        width="16px"
+                        height="16px"
+                      />{' '}
+                      {status.text}
+                    </Flex>
+                  </MenuItem>
+                ))}
+                <MenuDivider />
+                <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+              </MenuList>
+            </Menu>
+          </Flex>
+        </HStack>
+      </Flex>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Profile</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack spacing={4}>
+              <Box>
+                <Avatar
+                  size="xl"
+                  src={user.avatar}
+                  name={`${user.firstname} ${user.lastname}`}
                 >
-                  <Text fontSize="sm">{`${user.firstname} ${user.lastname}`}</Text>
-                  <Text fontSize="xs" color="gray.600">
-                    {user.mail}
-                  </Text>
-                </VStack>
-                <Box display={{ base: 'none', md: 'flex' }}>
-                  <FiChevronDown />
+                  <AvatarBadge
+                    as={IconButton}
+                    size="sm"
+                    rounded="full"
+                    top="-10px"
+                    colorScheme="red"
+                    aria-label="remove Image"
+                    icon={<SmallCloseIcon />}
+                  />
+                </Avatar>
+                <FormControl id="username" isRequired>
+                  <FormLabel htmlFor="username">Username</FormLabel>
+                  <Input
+                    type="text"
+                    name="username"
+                    // onChange={handleChange}
+                    value={user.username}
+                  />
+                </FormControl>
+              </Box>
+              <HStack>
+                <Box>
+                  <FormControl id="firstname" isRequired>
+                    <FormLabel htmlFor="firstname">First Name</FormLabel>
+                    <Input
+                      type="text"
+                      name="firstname"
+                      // onChange={handleChange}
+                      value={user.firstname}
+                    />
+                  </FormControl>
+                </Box>
+                <Box>
+                  <FormControl id="lastname" isRequired>
+                    <FormLabel htmlFor="lastname">Last Name</FormLabel>
+                    <Input
+                      type="text"
+                      name="lastname"
+                      // onChange={handleChange}
+                      value={user.lastname}
+                    />
+                  </FormControl>
                 </Box>
               </HStack>
-            </MenuButton>
-            <MenuList
-              bg={useColorModeValue('white', 'gray.900')}
-              borderColor={useColorModeValue('gray.200', 'gray.700')}
-            >
-              {allStatus.map((status) => (
-                <MenuItem
-                  key={status.id}
-                  onClick={() => handleStatusChange(status)}
-                >
-                  <Flex alignItems="center" gap="0.5em">
-                    <Box
-                      bgColor={status.bgColor}
-                      borderRadius="50%"
-                      width="16px"
-                      height="16px"
-                    />{' '}
-                    {status.text}
-                  </Flex>
-                </MenuItem>
-              ))}
-              <MenuDivider />
-              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
-      </HStack>
-    </Flex>
+              <FormControl id="mail" isRequired>
+                <FormLabel htmlFor="mail">Email address</FormLabel>
+                <Input
+                  type="email"
+                  name="mail"
+                  // onChange={handleChange}
+                  value={user.mail}
+                />
+              </FormControl>
+              <FormControl id="avatar">
+                <FormLabel htmlFor="avatar">Avatar</FormLabel>
+                <Input
+                  type="file"
+                  name="avatar"
+                  // onChange={handleFileRead}
+                  accept="image/png, image/gif, image/jpeg, image/jpg"
+                />
+              </FormControl>
+            </Stack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="green" mr={3} onClick={onClose}>
+              Save
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 
