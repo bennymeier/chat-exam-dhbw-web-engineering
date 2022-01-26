@@ -90,7 +90,9 @@ const UserList = (props: UserListProps) => {
   return (
     <Box
       overflowY="auto"
+      overflowX="hidden"
       height="100%"
+      backgroundColor="white"
       css={{
         '&::-webkit-scrollbar': {
           width: '7px',

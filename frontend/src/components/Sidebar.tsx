@@ -96,9 +96,9 @@ const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
       bg={useColorModeValue('white', 'gray.900')}
       borderRight="1px"
       borderRightColor={useColorModeValue('gray.200', 'gray.700')}
-      w={{ base: 'full', md: 60 }}
+      width={{ base: 'full', md: 60 }}
       pos="fixed"
-      h="full"
+      height="calc(100% - 85px)"
       {...props}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
