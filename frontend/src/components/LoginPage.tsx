@@ -1,4 +1,11 @@
-import { Container, Heading, SimpleGrid, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Heading,
+  SimpleGrid,
+  Stack,
+} from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserInterface } from '../types';
@@ -23,6 +30,31 @@ const LoginPage = () => {
       user = JSON.parse(localStorage.getItem('slack_chat_user') as string);
     }
     return user;
+  };
+
+  const generateUser = async () => {
+    try {
+      const response = await fetch(
+        'https://randomuser.me/api/?results=5&noinfo'
+      );
+      const data = await response.json();
+      const res = data.results;
+      const users = res.map((user: any) => {
+        return {
+          mail: user.email,
+          username: user.login.username,
+          firstname: user.name.first,
+          lastname: user.name.last,
+          avatar: user.picture.large,
+        };
+      });
+      users.forEach(async (user: Partial<UserInterface>) => {
+        await UserApi.create(user);
+      });
+      console.log(users);
+    } catch (err) {
+      console.warn(err);
+    }
   };
 
   useEffect(() => {
@@ -60,13 +92,17 @@ const LoginPage = () => {
             Choose an user to login with. There is no registration or fully
             implemented authentication.
           </Heading>
-          <UserList click={handleClick} />
+          <Box maxHeight="640" overflowY="auto">
+            <UserList click={handleClick} />
+          </Box>
         </Stack>
         <Stack spacing={{ base: 5, md: 7 }}>
           <Heading>Sign Up</Heading>
           <Heading size="sm">
             Register a new user and click it in the list to login with.
           </Heading>
+          <Button onClick={generateUser}>Generate 5 Random User</Button>
+          <Heading size="sm">Or create yourself an user below.</Heading>
           <Register />
         </Stack>
       </Container>

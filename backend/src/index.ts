@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { establishMongoDBConnection, insertDemoData } from './db.connection';
+import { establishMongoDBConnection } from './db.connection';
 import RoomRouter from './routers/room.router';
 import UserRouter from './routers/user.router';
 import MessageRouter from './routers/message.router';
@@ -19,12 +19,13 @@ app.use(express.json());
 app.use('/api', [RoomRouter, UserRouter, MessageRouter]);
 
 establishMongoDBConnection();
-// insertDemoData();
-app.listen(apiPort, () => console.log('Server listening on port: ', apiPort));
+
+app.listen(apiPort, () => {
+  console.log('Server listening on port: ', apiPort);
+});
 
 io.on('connection', (socket) => {
   const currentUser = socket.handshake.auth;
-
   // User joined room
   socket.on('room:join', (room: RoomInterface) => {
     socket.join(room._id.toString());
