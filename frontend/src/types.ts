@@ -25,7 +25,6 @@ export interface UserInterface extends MongoSchema {
   lastname: string;
   avatar?: string;
   status: Status | string;
-  chats: string[];
   lastRoomId: string;
 }
 

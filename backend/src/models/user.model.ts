@@ -32,7 +32,7 @@ const UserSchema = new Schema<UserInterface>(
       required: [true, 'Lastname is missing.'],
     },
     avatar: {
-      type: Buffer,
+      type: String,
     },
     status: {
       type: String,

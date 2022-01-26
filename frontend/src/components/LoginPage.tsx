@@ -1,10 +1,11 @@
-import { Box, Container, Heading } from '@chakra-ui/react';
+import { Container, Heading, SimpleGrid, Stack } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserInterface } from '../types';
 import { useAuth } from './AuthProvider';
 import UserList from './UserList';
 import UserApi from '../api/user.api';
+import Register from './Register';
 
 const LoginPage = () => {
   let navigate = useNavigate();
@@ -45,15 +46,29 @@ const LoginPage = () => {
 
   return (
     <>
-      <Container textAlign="center">
-        <Box my="5">
-          <Heading mb="3">Login</Heading>
+      <Container
+        as={SimpleGrid}
+        maxW={'7xl'}
+        columns={{ base: 1, md: 2 }}
+        spacing={{ base: 10, lg: 32 }}
+        py={{ base: 10, sm: 20, lg: 32 }}
+        textAlign="center"
+      >
+        <Stack spacing={{ base: 5, md: 7 }}>
+          <Heading>Login</Heading>
           <Heading size="sm">
             Choose an user to login with. There is no registration or fully
             implemented authentication.
           </Heading>
-        </Box>
-        <UserList click={handleClick} />
+          <UserList click={handleClick} />
+        </Stack>
+        <Stack spacing={{ base: 5, md: 7 }}>
+          <Heading>Sign Up</Heading>
+          <Heading size="sm">
+            Register a new user and click it in the list to login with.
+          </Heading>
+          <Register />
+        </Stack>
       </Container>
     </>
   );

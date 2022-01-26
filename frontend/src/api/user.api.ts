@@ -11,7 +11,7 @@ class UserApi {
   getByParticipants(participants: string[]) {
     return API.get(`/users/${JSON.stringify(participants)}`);
   }
-  create(data: UserInterface) {
+  create(data: Partial<UserInterface>) {
     return API.post('/user', data);
   }
   update(data: UserInterface, id: string) {
