@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import {
   IconButton,
   Box,
@@ -35,12 +35,11 @@ import {
   AvatarBadge,
 } from '@chakra-ui/react';
 import { SmallCloseIcon } from '@chakra-ui/icons';
-import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiBell, FiChevronDown, FiEdit } from 'react-icons/fi';
 import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { useSocket } from './SocketProvider';
-import UserList from './UserList';
 import {
   allStatus,
   RoomInterface,
@@ -49,6 +48,8 @@ import {
 } from '../types';
 import UserApi from '../api/user.api';
 import Status from './Status';
+import ConversationList from './ConversationList';
+import ConversationSuggestions from './ConversationSuggestions';
 
 interface SidebarProps {
   children: ReactNode;
@@ -58,6 +59,7 @@ interface SidebarProps {
 const Sidebar = ({ children, ...props }: SidebarProps) => {
   const { currentRoom } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
       <SidebarContent
@@ -78,7 +80,7 @@ const Sidebar = ({ children, ...props }: SidebarProps) => {
         </DrawerContent>
       </Drawer>
       <Navbar onOpen={onOpen} currentRoom={currentRoom} />
-      <Box ml={{ base: 0, md: 60 }} p="4">
+      <Box ml={{ base: 0, md: 80 }} p="4">
         {children}
       </Box>
     </Box>
@@ -90,25 +92,48 @@ interface SidebarContentProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
+  const { isOpen, onOpen, onClose: onCloseSuggestionModal } = useDisclosure();
+
   return (
-    <Box
-      transition="3s ease"
-      bg={useColorModeValue('white', 'gray.900')}
-      borderRight="1px"
-      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
-      width={{ base: 'full', md: 60 }}
-      pos="fixed"
-      height="calc(100% - 85px)"
-      {...props}
-    >
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Slack Chat
-        </Text>
-        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
-      </Flex>
-      <UserList showAllUser={false} />
-    </Box>
+    <>
+      <ConversationSuggestions
+        isOpen={isOpen}
+        onClose={onCloseSuggestionModal}
+        onOpen={onOpen}
+      />
+      <Box
+        transition="3s ease"
+        bg={useColorModeValue('white', 'gray.900')}
+        borderRight="1px"
+        borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+        width={{ base: 'full', md: 80 }}
+        pos="fixed"
+        height="100%"
+        {...props}
+      >
+        <Flex h="20" alignItems="center" mx="2" justifyContent="space-between">
+          <Text
+            fontSize="2xl"
+            fontFamily="monospace"
+            fontWeight="bold"
+            userSelect="none"
+          >
+            Slack Chat 1
+          </Text>
+          <IconButton
+            icon={<FiEdit />}
+            aria-label="Start a new conversation"
+            size="sm"
+            onClick={onOpen}
+          />
+          <CloseButton
+            display={{ base: 'flex', md: 'none' }}
+            onClick={onClose}
+          />
+        </Flex>
+        <ConversationList />
+      </Box>
+    </>
   );
 };
 
@@ -144,27 +169,6 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await UserApi.getByParticipants(
-          (currentRoom as RoomInterface).participants
-        );
-        if (res.data) {
-          const filterParticipants = res.data.filter(
-            (participant: UserInterface) => participant._id !== user._id
-          );
-          setParticipants(filterParticipants);
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    };
-    if (currentRoom?.participants) {
-      fetchData();
-    }
-  }, [currentRoom?._id]);
-
   return (
     <>
       <Flex
@@ -190,8 +194,9 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
           fontSize="2xl"
           fontFamily="monospace"
           fontWeight="bold"
+          userSelect="none"
         >
-          Slack Chat
+          Slack Chat 2
         </Text>
 
         <HStack spacing={{ base: '0', md: '6' }}>

@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
 import UserApi from '../api/user.api';
-import EmptyRoom from './EmptyRoom';
 import { useSocket } from './SocketProvider';
 
 interface ChatViewProps {
@@ -16,8 +15,6 @@ interface ChatViewProps {
 const ChatView: React.FC<ChatViewProps> = (props) => {
   const { currentRoom, currentUser } = props;
   const [messages, setMessages] = useState<MessageInterface[]>([]);
-  const [participants, setParticipants] = useState<UserInterface[]>([]);
-  const [participantsLoading, setParticipantsLoading] = useState(true);
   const { id: chatPartnerId } = useParams();
   const socket = useSocket();
   const messagesContainer = useRef<HTMLDivElement>(null);
@@ -54,32 +51,30 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
     }
   }, [chatPartnerId, currentRoom?._id]);
 
+  const saveLastRoomId = async () => {
+    const userObj = { ...currentUser, lastRoomId: currentRoom._id };
+    try {
+      return await UserApi.update(userObj, currentUser._id);
+    } catch (err) {
+      console.warn(err);
+      return Promise.reject(err);
+    }
+  };
+
   useEffect(() => {
     if (currentRoom?._id) {
       console.log('Join room ', currentRoom._id);
-      socket.emit('room:join', currentRoom);
+      saveLastRoomId().then(() => socket.emit('room:join', currentRoom));
     }
     return () => {
-      console.log('Leave room');
-      socket.emit('room:leave', currentRoom);
-    };
-  }, [currentRoom]);
-
-  useEffect(() => {
-    const fetchParticipants = async () => {
-      try {
-        setParticipantsLoading(true);
-        const res = await UserApi.getByParticipants(currentRoom.participants);
-        setParticipants(res.data);
-        setParticipantsLoading(false);
-      } catch (err) {
-        console.warn(err);
+      if (currentRoom) {
+        console.log('Leave room', currentRoom);
+        socket.emit('room:leave', currentRoom);
+      } else {
+        console.log('How can I leave a room if I joined none??');
       }
     };
-    if (!!currentRoom?.participants?.length) {
-      fetchParticipants();
-    }
-  }, [currentRoom?.participants]);
+  }, [currentRoom]);
 
   useEffect(() => {
     setTimeout(() => scrollToBottom(), 50);
@@ -126,16 +121,13 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
           }}
           ref={messagesContainer}
         >
-          {!!!messages.length && <EmptyRoom />}
-          {!participantsLoading &&
-            messages.map((message) => (
-              <Message
-                key={message._id}
-                message={message}
-                participants={participants}
-                currentUser={currentUser}
-              />
-            ))}
+          {messages.map((message) => (
+            <Message
+              key={message._id}
+              message={message}
+              currentUser={currentUser}
+            />
+          ))}
         </Box>
         <Divider borderBottomWidth="3px" />
         <Box>

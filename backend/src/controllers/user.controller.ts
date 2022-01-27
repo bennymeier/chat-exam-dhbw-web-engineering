@@ -31,7 +31,7 @@ const deleteUser = async (req: Request, res: Response) => {
 
 const getUserById = async (req: Request, res: Response) => {
   try {
-    const user = await User.findOne({ _id: req.params.id });
+    const user = await User.findOne({ _id: req.params.id }).lean();
     return res.status(200).json(user);
   } catch {
     return res.status(404).json({ error: "User doesn't exist!" });
@@ -40,20 +40,33 @@ const getUserById = async (req: Request, res: Response) => {
 
 const getUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).lean();
     return res.status(200).json(users);
   } catch {
     return res.status(404).json({ error: 'Users not found!' });
   }
 };
 
-const getUsersByParticipants = async (req: Request, res: Response) => {
-  const participants = JSON.parse(req.params.participants);
+const searchUsers = async (req: Request, res: Response) => {
+  const value = req.query.value;
+  const limit =
+    !!req.query.limit && typeof req.query.limit === 'string'
+      ? parseInt(req.query.limit)
+      : 0;
+  if (!value) {
+    return res.status(404).json({ error: 'Search value was empty!' });
+  }
   try {
-    const users = await User.find().where('_id').in(participants);
+    const regex = new RegExp(value as string, 'i');
+    const users = await User.find({
+      $or: [{ firstname: regex }, { lastname: regex }],
+    })
+      .limit(limit)
+      .lean();
+    // const users = await User.find({ firstname: regex });
     return res.status(200).json(users);
   } catch (err) {
-    return res.status(404).json({ error: "Room doesn't exist!" });
+    return res.status(404).json({ error: err });
   }
 };
 
@@ -63,5 +76,5 @@ export default {
   deleteUser,
   getUserById,
   getUsers,
-  getUsersByParticipants,
+  searchUsers,
 };

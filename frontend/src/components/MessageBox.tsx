@@ -32,7 +32,7 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
   }, [isTyping]);
 
   const sendMessage = async () => {
-    const data: Partial<MessageInterface> = {
+    const data: any = {
       senderId: currentUser._id,
       roomId: currentRoom._id,
       content: value,

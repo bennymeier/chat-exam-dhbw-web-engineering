@@ -60,7 +60,6 @@ const Register = () => {
     try {
       setIsLoading(true);
       const data = await UserApi.create(user);
-      console.log(data);
       setIsLoading(false);
       setUser(initialUser);
     } catch (err) {

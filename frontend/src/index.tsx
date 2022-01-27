@@ -9,6 +9,8 @@ import AuthProvider from './components/AuthProvider';
 import RequireAuth from './components/RequireAuth';
 import './index.css';
 
+const PROTECTED_ROUTES = ['/chat', '/room', '/chat/:id', '/room/:id'];
+
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider>
@@ -16,22 +18,17 @@ ReactDOM.render(
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LoginPage />} />
-            <Route
-              path="/chat"
-              element={
-                <RequireAuth>
-                  <App />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/chat/:id"
-              element={
-                <RequireAuth>
-                  <App />
-                </RequireAuth>
-              }
-            />
+            {PROTECTED_ROUTES.map((route) => (
+              <Route
+                key={route}
+                path={route}
+                element={
+                  <RequireAuth>
+                    <App />
+                  </RequireAuth>
+                }
+              />
+            ))}
           </Routes>
         </AuthProvider>
       </BrowserRouter>

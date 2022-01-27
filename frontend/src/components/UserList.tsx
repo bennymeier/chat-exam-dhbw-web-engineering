@@ -8,11 +8,11 @@ import User from './User';
 import { useSocket } from './SocketProvider';
 
 interface UserListProps {
-  click?: (user: UserInterface) => void;
+  onClick?: (user: UserInterface) => void;
   showAllUser?: boolean;
 }
 const UserList = (props: UserListProps) => {
-  const { click, showAllUser = true } = props;
+  const { onClick, showAllUser = true } = props;
   const socket = useSocket();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
@@ -79,11 +79,9 @@ const UserList = (props: UserListProps) => {
       </>
     );
 
-  const handleClick = (user: any) => {
-    if (click) {
-      click(user);
-    } else {
-      navigate(`/chat/${user._id}`, { replace: true });
+  const handleClick = (user: UserInterface) => {
+    if (onClick) {
+      onClick(user);
     }
   };
 
@@ -107,7 +105,7 @@ const UserList = (props: UserListProps) => {
       }}
     >
       {getUsers().map((user: UserInterface) => (
-        <User key={user._id} user={user} onClick={() => handleClick(user)} />
+        <User key={user._id} user={user} onClick={handleClick} />
       ))}
     </Box>
   );

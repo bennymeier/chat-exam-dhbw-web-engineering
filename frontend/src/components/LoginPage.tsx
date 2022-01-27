@@ -51,7 +51,8 @@ const LoginPage = () => {
       users.forEach(async (user: Partial<UserInterface>) => {
         await UserApi.create(user);
       });
-      console.log(users);
+      // TODO: Update userlist instead of hard reloading page
+      window.location.reload();
     } catch (err) {
       console.warn(err);
     }
@@ -93,7 +94,7 @@ const LoginPage = () => {
             implemented authentication.
           </Heading>
           <Box maxHeight="640" overflowY="auto">
-            <UserList click={handleClick} />
+            <UserList onClick={handleClick} />
           </Box>
         </Stack>
         <Stack spacing={{ base: 5, md: 7 }}>

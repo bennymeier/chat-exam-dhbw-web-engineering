@@ -31,7 +31,7 @@ const deleteMessage = async (req: Request, res: Response) => {
 
 const getMessageById = async (req: Request, res: Response) => {
   try {
-    const message = await Message.findOne({ _id: req.params.id });
+    const message = await Message.findOne({ _id: req.params.id }).lean();
     return res.status(200).json(message);
   } catch {
     return res.status(404).json({ error: "Message doesn't exist!" });
@@ -40,7 +40,7 @@ const getMessageById = async (req: Request, res: Response) => {
 
 const getMessages = async (req: Request, res: Response) => {
   try {
-    const messages = await Message.find({});
+    const messages = await Message.find({}).lean();
     return res.status(200).json(messages);
   } catch {
     return res.status(404).json({ error: 'Messages not found!' });
@@ -49,7 +49,9 @@ const getMessages = async (req: Request, res: Response) => {
 
 const getMessagesByRoomId = async (req: Request, res: Response) => {
   try {
-    const messages = await Message.find({ roomId: req.params.id });
+    const messages = await Message.find({ roomId: req.params.id })
+      .populate('senderId')
+      .lean();
     return res.status(200).json(messages);
   } catch {
     return res.status(404).json({ error: 'Messages not found!' });

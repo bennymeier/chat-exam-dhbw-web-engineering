@@ -14,11 +14,16 @@ class UserApi {
   create(data: Partial<UserInterface>) {
     return API.post('/user', data);
   }
-  update(data: UserInterface, id: string) {
+  update(data: Partial<UserInterface>, id: string) {
     return API.put(`/user/${id}`, data);
   }
   delete(id: string) {
     return API.delete(`/user/${id}`);
+  }
+  search(value: string, limit?: string) {
+    return API.get(
+      `/users/search/?value=${value}&limit=${!!limit ? limit : ''}`
+    );
   }
 }
 

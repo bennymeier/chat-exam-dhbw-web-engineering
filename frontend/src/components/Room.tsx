@@ -1,20 +1,18 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
-import { RoomInterface, UserInterface } from '../types';
-import Status from './Status';
+import { RoomInterface } from '../types';
 
 interface UserProps {
-  user: UserInterface;
-  room?: RoomInterface;
-  onClick?: (user: UserInterface, room?: RoomInterface) => void;
-  activeId?: string;
+  room: RoomInterface;
+  onClick?: (room: RoomInterface) => void;
+  activeId: string;
 }
-const User: React.FC<UserProps> = (props) => {
-  const { user, room, onClick, activeId } = props;
-  const { firstname, lastname, mail } = user;
-  const isCurrentRoom = room?._id === activeId;
+const Room: React.FC<UserProps> = (props) => {
+  const { room, onClick, activeId } = props;
+  const { name, description } = room;
+  const isCurrentRoom = room._id === activeId;
   const handleClick = () => {
     if (onClick) {
-      onClick(user, room);
+      onClick(room);
     }
   };
   return (
@@ -32,17 +30,14 @@ const User: React.FC<UserProps> = (props) => {
       }}
       onClick={handleClick}
     >
-      <Status user={user} />
       <Flex flexDirection="column" alignItems="baseline" width="100%">
-        <Heading size="xs">
-          {firstname} {lastname}
-        </Heading>
+        <Heading size="xs">{name}</Heading>
         <Text fontSize="xs" isTruncated width="95%">
-          {mail}
+          {description}
         </Text>
       </Flex>
     </Flex>
   );
 };
 
-export default User;
+export default Room;

@@ -26,14 +26,35 @@ app.listen(apiPort, () => {
 
 io.on('connection', (socket) => {
   const currentUser = socket.handshake.auth;
+
+  // Room created
+  socket.on('room:created', (room: RoomInterface) => {
+    socket.broadcast.emit('room:created', room);
+  });
+
+  // Room deleted
+  socket.on('room:deleted', (room: RoomInterface) => {
+    socket.broadcast.emit('room:deleted', room);
+  });
+
+  // Chat created
+  socket.on('chat:created', (chat: RoomInterface) => {
+    socket.broadcast.emit('chat:created', chat);
+  });
+
+  // Chat deleted
+  socket.on('chat:deleted', (chat: RoomInterface) => {
+    socket.broadcast.emit('chat:deleted', chat);
+  });
+
   // User joined room
   socket.on('room:join', (room: RoomInterface) => {
-    socket.join(room._id.toString());
+    socket.join(room._id);
   });
 
   // User left room
   socket.on('room:leave', (room: RoomInterface) => {
-    socket.leave(room._id.toString());
+    socket.leave(room._id);
   });
 
   // User sent message

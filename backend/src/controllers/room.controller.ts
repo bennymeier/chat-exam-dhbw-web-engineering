@@ -11,6 +11,17 @@ const createRoom = async (req: Request, res: Response) => {
   }
 };
 
+const getRoom = async (req: Request, res: Response) => {
+  try {
+    const room = await Room.findOne({ _id: req.params.id })
+      .populate('participants')
+      .lean();
+    return res.status(200).json(room);
+  } catch {
+    return res.status(404).json({ error: 'Rooms not found!' });
+  }
+};
+
 const updateRoom = async (req: Request, res: Response) => {
   try {
     const room = await Room.updateOne({ _id: req.params.id }, req.body);
@@ -33,7 +44,10 @@ const getRoomByParticipants = async (req: Request, res: Response) => {
   const participants = JSON.parse(req.params.participants);
   try {
     // Search if there is already a room with those participants
-    const room = await Room.findOne().where('participants').all(participants);
+    const room = await Room.findOne()
+      .where('participants')
+      .all(participants)
+      .lean();
     // Create room if there is none
     if (!room) {
       const newRoom = new Room({ participants });
@@ -48,22 +62,42 @@ const getRoomByParticipants = async (req: Request, res: Response) => {
 };
 
 const getRooms = async (req: Request, res: Response) => {
+  const filterMe = req.query.filterme;
+  const userId = req.query.userid;
+  const limit =
+    !!req.query.limit && typeof req.query.limit === 'string'
+      ? parseInt(req.query.limit)
+      : 0;
   try {
-    const rooms = await Room.find({});
-    return res.status(200).json(rooms);
-  } catch {
-    return res.status(404).json({ error: 'Rooms not found!' });
-  }
-};
+    // Show all rooms where userId is not in
+    if (filterMe === 'true' && userId) {
+      const rooms = await Room.find({})
+        .where('participants')
+        .nin([userId])
+        .populate('participants')
+        .limit(limit)
+        .lean();
 
-/**
- * Get all rooms where the given ID is in the participant array.
- */
-const getRoomsWhereIdIsParticipant = async (req: Request, res: Response) => {
-  const id = JSON.parse(req.params.id);
-  try {
-    const rooms = await Room.find({}).where("participants").in(id)
-    return res.status(200).json(rooms);
+      return res.status(200).json(rooms);
+    } else if (filterMe === 'false' && userId) {
+      // Show all rooms where userId is in
+      const rooms = await Room.find({})
+        .where('participants')
+        .in([userId])
+        .populate('participants')
+        .limit(limit)
+        .lean();
+
+      return res.status(200).json(rooms);
+    } else {
+      // Show all rooms
+      const rooms = await Room.find({})
+        .populate('participants')
+        .limit(limit)
+        .lean();
+
+      return res.status(200).json(rooms);
+    }
   } catch {
     return res.status(404).json({ error: 'Rooms not found!' });
   }
@@ -71,9 +105,8 @@ const getRoomsWhereIdIsParticipant = async (req: Request, res: Response) => {
 
 export default {
   createRoom,
+  getRoom,
   updateRoom,
   deleteRoom,
-  getRoomByParticipants,
   getRooms,
-  getRoomsWhereIdIsParticipant
 };

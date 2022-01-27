@@ -29,12 +29,14 @@ export interface UserInterface extends MongoSchema {
 }
 
 export interface RoomInterface extends MongoSchema {
-  name?: string;
-  participants: string[];
+  name: string;
+  description?: string;
+  participants: UserInterface[];
+  isRoom?: boolean;
 }
 
 export interface MessageInterface extends MongoSchema {
-  senderId: string;
+  senderId: UserInterface | string;
   roomId: string;
   content: string;
 }
