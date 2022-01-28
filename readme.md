@@ -90,10 +90,10 @@ isRoom: boolean;
 1. User logs in from /
 2. Choosen user is now stored in localStorage
 3. Load the currentUser from localStorage
-4. Check if currentUser.lastRoomId is set, if yes:
-   - load room details and go to lastRoomId
-5. lastRoomId wasn't set, check if /room/:id or /chat/:id is set
+4. Check if currentUser.lastChannelId is set, if yes:
+   - load room details and go to lastChannelId
+5. lastChannelId wasn't set, check if /room/:id or /chat/:id is set
    - load room details and go to :id
-6. lastRoomId and :id are not set
+6. lastChannelId and :id are not set
    - show EmptyRoom component
 7. get messages and reactions

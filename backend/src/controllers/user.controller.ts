@@ -4,10 +4,12 @@ import User from '../models/user.model';
 const createUser = async (req: Request, res: Response) => {
   try {
     const user = new User(req.body);
+    await User.init();
     const data = await user.save();
     return res.status(201).json(data);
-  } catch {
-    return res.status(400).json({ error: "User couldn't be created!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json(err);
   }
 };
 
@@ -15,8 +17,9 @@ const updateUser = async (req: Request, res: Response) => {
   try {
     const user = await User.updateOne({ _id: req.params.id }, req.body);
     return res.status(200).json(user);
-  } catch {
-    return res.status(404).json({ error: "User doesn't exist!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(404).json(err);
   }
 };
 
@@ -24,8 +27,9 @@ const deleteUser = async (req: Request, res: Response) => {
   try {
     await User.findOneAndDelete({ _id: req.params.id });
     return res.status(204).send();
-  } catch {
-    return res.status(400).json({ error: 'User couldn*t be deleted!' });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json(err);
   }
 };
 
@@ -33,7 +37,8 @@ const getUserById = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ _id: req.params.id }).lean();
     return res.status(200).json(user);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: "User doesn't exist!" });
   }
 };
@@ -42,17 +47,16 @@ const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find({}).lean();
     return res.status(200).json(users);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: 'Users not found!' });
   }
 };
 
 const searchUsers = async (req: Request, res: Response) => {
-  const value = req.query.value;
-  const limit =
-    !!req.query.limit && typeof req.query.limit === 'string'
-      ? parseInt(req.query.limit)
-      : 0;
+  const q = req.query;
+  const value = q.value;
+  const limit = parseInt(q.limit as string) || 0;
   if (!value) {
     return res.status(404).json({ error: 'Search value was empty!' });
   }
@@ -66,7 +70,18 @@ const searchUsers = async (req: Request, res: Response) => {
     // const users = await User.find({ firstname: regex });
     return res.status(200).json(users);
   } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: err });
+  }
+};
+
+const getUserStatus = async (req: Request, res: Response) => {
+  try {
+    const status = await User.findById(req.params.id, { status: 1 }).lean();
+    return res.status(200).json(status);
+  } catch (err) {
+    console.error(err);
+    return res.status(404).json({ error: "User doesn't exist!" });
   }
 };
 
@@ -77,4 +92,5 @@ export default {
   getUserById,
   getUsers,
   searchUsers,
+  getUserStatus,
 };

@@ -20,30 +20,25 @@ import {
 import { useState } from 'react';
 import { FaUser } from 'react-icons/fa';
 import { useAuth } from './AuthProvider';
-import RoomApi from '../api/room.api';
+import ChatApi from '../api/chat.api';
 import UserApi from '../api/user.api';
-import { UserInterface } from '../types';
+import { CreateChat, User } from '../types';
 import { useSocket } from './SocketProvider';
 import UserSearch from './UserSearch';
 import { useNavigate } from 'react-router-dom';
 
-interface ChatInterface {
-  participants: string[];
-  name?: string;
-  description?: string;
-  isRoom?: boolean;
-}
-const CreateChat = () => {
+const CreateChatComponent = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const navigate = useNavigate();
   const socket = useSocket();
-  const { user: currentUser } = useAuth();
-  const [chat, setChat] = useState<ChatInterface>({
+  const currentUser = useAuth().user as User;
+  const [chat, setChat] = useState<CreateChat>({
+    partner: '',
     name: '',
-    participants: [],
+    creator: currentUser._id,
   });
-  const [selectedUser, setSelectedUser] = useState<UserInterface>();
+  const [selectedUser, setSelectedUser] = useState<User>();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChat((prevState) => ({
       ...prevState,
@@ -51,19 +46,16 @@ const CreateChat = () => {
     }));
   };
   const handleSubmit = async () => {
-    const chatData = {
-      ...chat,
-      participants: [
-        (currentUser as UserInterface)._id,
-        (selectedUser as UserInterface)._id,
-      ],
-    };
     try {
-      const res = await RoomApi.create(chatData);
-      socket.emit('chat:created', res.data);
-      onClose();
-      const userData = { ...currentUser, lastRoomId: res.data._id };
-      await UserApi.update(userData, (currentUser as UserInterface)._id);
+      const res = await ChatApi.create({
+        ...chat,
+        partner: (selectedUser as User)._id,
+      });
+      await UserApi.update(
+        { lastChannel: res.data.id, lastChannelType: 'chat' },
+        currentUser._id
+      );
+      socket.emit('chat:create', res.data);
       navigate(`/chat/${res.data._id}`, { replace: true });
       toast({
         title: 'Chat created.',
@@ -72,6 +64,7 @@ const CreateChat = () => {
         duration: 3000,
         isClosable: true,
       });
+      onClose();
     } catch (err) {
       toast({
         title: "Chat couldn't be created.",
@@ -115,9 +108,7 @@ const CreateChat = () => {
               </FormControl>
               <FormControl isRequired>
                 <FormLabel htmlFor="user">User</FormLabel>
-                <UserSearch
-                  onSelect={(user: UserInterface) => setSelectedUser(user)}
-                />
+                <UserSearch onSelect={(user: User) => setSelectedUser(user)} />
               </FormControl>
             </Stack>
           </ModalBody>
@@ -143,4 +134,4 @@ const CreateChat = () => {
   );
 };
 
-export default CreateChat;
+export default CreateChatComponent;

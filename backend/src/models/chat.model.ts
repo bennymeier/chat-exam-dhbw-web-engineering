@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { RoomSchema } from 'src/types';
+import { ChatSchema } from 'src/types';
 
 const { Schema } = mongoose;
-const RoomModel = new Schema<RoomSchema>(
+const ChatModel = new Schema<ChatSchema>(
   {
     creator: {
       type: Schema.Types.ObjectId,
@@ -10,16 +10,13 @@ const RoomModel = new Schema<RoomSchema>(
       required: true,
       immutable: true,
     },
-    participants: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-    name: {
-      type: String,
+    partner: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      immutable: true,
     },
-    description: {
+    name: {
       type: String,
     },
     lastMessage: {
@@ -30,4 +27,4 @@ const RoomModel = new Schema<RoomSchema>(
   { timestamps: true }
 );
 
-export default mongoose.models.Room || mongoose.model('Room', RoomModel);
+export default mongoose.models.Chat || mongoose.model('Chat', ChatModel);

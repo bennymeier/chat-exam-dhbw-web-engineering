@@ -1,31 +1,59 @@
 import { Avatar, AvatarBadge } from '@chakra-ui/react';
-import { allStatus, UserInterface } from '../types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { allStatus, User, Status } from '../types';
+import { useSocket } from './SocketProvider';
+import UserApi from '../api/user.api';
 
 interface StatusProps {
-  user: UserInterface;
+  user: User;
 }
-const Status: React.FC<StatusProps> = (props) => {
-  const { user } = props;
-  const { firstname, lastname, avatar } = user;
-  // TODO: Better use useEffect with [user.status]?
-  // TODO: Better to use socket.on("status:change") here?
+const StatusComponent: React.FC<StatusProps> = (props) => {
+  const { user: currentUser } = props;
+  const socket = useSocket();
+  const mountedRef = useRef(true);
+  const { firstname, lastname, avatar } = currentUser;
+  const [status, setStatus] = useState<Status>({
+    id: 'offline',
+    text: 'Offline',
+    bgColor: 'gray.700',
+  });
   // TODO: Change avatar here too
-  const getStatus = () => {
-    const currentStatus = allStatus.find(
-      (statusObj) => statusObj.id === user.status
-    );
-    return currentStatus;
+  const getStatus = (statusId: string) => {
+    const currentStatus = allStatus.find((status) => status.id === statusId);
+    return currentStatus as Status;
   };
+  const fetchStatus = useCallback(async () => {
+    const res = await UserApi.getStatus(currentUser._id);
+    console.log('Ref exists: ', mountedRef.current);
+    if (!mountedRef.current) return null;
+    setStatus(getStatus(res.data.status));
+  }, [mountedRef, currentUser.status]);
+
+  useEffect(() => {
+    console.log('MOUNT');
+    mountedRef.current = true;
+    socket.on(
+      'status:change',
+      ({ user, statusId }: { user: User; statusId: string }) => {
+        if (user._id === currentUser._id) {
+          console.log(`Change status of ${user.firstname} to ${statusId}`);
+          setStatus(getStatus(statusId));
+        }
+      }
+    );
+    fetchStatus();
+    return () => {
+      console.log('UNMOUNT');
+      socket.off('status:change');
+      mountedRef.current = false;
+    };
+  }, [socket, currentUser.status, fetchStatus]);
 
   return (
     <Avatar name={`${firstname} ${lastname}`} src={avatar} mr="4" size="md">
-      <AvatarBadge
-        boxSize="1.25em"
-        bg={getStatus()?.bgColor}
-        title={getStatus()?.text}
-      />
+      <AvatarBadge boxSize="1.25em" bg={status.bgColor} title={status.text} />
     </Avatar>
   );
 };
 
-export default Status;
+export default StatusComponent;

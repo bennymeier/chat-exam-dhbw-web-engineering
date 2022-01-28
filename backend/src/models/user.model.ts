@@ -1,34 +1,31 @@
-import mongoose, { Document, Types } from 'mongoose';
+import mongoose from 'mongoose';
+import { UserSchema } from 'src/types';
+
 const { Schema } = mongoose;
-
-export interface UserInterface extends Document {
-  username: string;
-  mail: string;
-  firstname: string;
-  lastname: string;
-  avatar?: string;
-  status: string;
-  lastRoomId: Types.ObjectId;
-}
-
-const UserSchema = new Schema<UserInterface>(
+const UserModel = new Schema<UserSchema>(
   {
     username: {
       type: String,
       unique: true,
+      trim: true,
       required: [true, 'Username is missing.'],
+      immutable: true,
     },
     mail: {
       type: String,
       unique: true,
+      trim: true,
       required: [true, 'E-Mail is missing.'],
+      immutable: true,
     },
     firstname: {
       type: String,
+      trim: true,
       required: [true, 'Firstname is missing.'],
     },
     lastname: {
       type: String,
+      trim: true,
       required: [true, 'Lastname is missing.'],
     },
     avatar: {
@@ -38,12 +35,16 @@ const UserSchema = new Schema<UserInterface>(
       type: String,
       default: 'offline',
     },
-    lastRoomId: {
+    lastChannel: {
       type: Schema.Types.ObjectId,
       ref: 'Room',
+    },
+    lastChannelType: {
+      type: String,
+      default: 'room',
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+export default mongoose.models.User || mongoose.model('User', UserModel);

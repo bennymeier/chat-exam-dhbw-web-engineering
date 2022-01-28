@@ -14,8 +14,9 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { RoomInterface, UserInterface } from '../types';
+import { Room, User } from '../types';
 import RoomApi from '../api/room.api';
+import UserApi from '../api/user.api';
 import CreateChat from './CreateChat';
 import CreateRoom from './CreateRoom';
 import { useAuth } from './AuthProvider';
@@ -28,26 +29,17 @@ interface ConversationSuggestionsProps {
 const ConversationSuggestions: React.FC<ConversationSuggestionsProps> = (
   props
 ) => {
-  const { user } = useAuth();
-  const { isOpen, onOpen, onClose } = props;
-  const [rooms, setRooms] = useState<RoomInterface[]>([]);
-  const handleJoinRoom = async (room: RoomInterface) => {
-    const participants = room.participants.map((user) => user._id);
-    const roomData = {
-      ...room,
-      participants: [...participants, (user as UserInterface)._id],
-    };
-    const res = await RoomApi.update(roomData, room._id);
-    console.log(res.data);
+  const currentUser = useAuth().user as User;
+  const { isOpen, onClose } = props;
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const handleJoinRoom = async (room: Room) => {
+    await RoomApi.joinRoom(room._id, currentUser._id);
+    await UserApi.update({ lastChannelType: 'room' }, currentUser._id);
   };
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await RoomApi.getAll(
-          undefined,
-          true,
-          (user as UserInterface)._id
-        );
+        const res = await RoomApi.getAll(undefined, true, currentUser._id);
         setRooms(res.data);
       } catch (err) {
         console.warn(err);
@@ -95,8 +87,10 @@ const ConversationSuggestions: React.FC<ConversationSuggestionsProps> = (
                           })}
                         </AvatarGroup>
                       </Box>
-                      <Box>
-                        <Heading size="sm">{name}</Heading>
+                      <Box width="-webkit-fill-available">
+                        <Heading size="sm" isTruncated>
+                          {name}
+                        </Heading>
                       </Box>
                       <Box>
                         <Button onClick={() => handleJoinRoom(room)} size="xs">

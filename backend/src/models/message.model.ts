@@ -1,23 +1,20 @@
-import mongoose, { Document, Types } from 'mongoose';
+import mongoose from 'mongoose';
+import { MessageSchema } from 'src/types';
+
 const { Schema } = mongoose;
-
-export interface MessageInterface extends Document {
-  senderId: Types.ObjectId;
-  roomId: Types.ObjectId;
-  content: string;
-}
-
-const MessageSchema = new Schema<MessageInterface>(
+const MessageModel = new Schema<MessageSchema>(
   {
-    senderId: {
+    sender: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'Sender ID is missing.'],
+      required: [true, 'User ID is missing.'],
+      immutable: true,
     },
-    roomId: {
+    channel: {
       type: Schema.Types.ObjectId,
       ref: 'Room',
-      required: [true, 'Room ID is missing.'],
+      required: [true, 'Channel ID is missing.'],
+      immutable: true,
     },
     content: { type: String, required: [true, 'Content is missing.'] },
   },
@@ -25,4 +22,4 @@ const MessageSchema = new Schema<MessageInterface>(
 );
 
 export default mongoose.models.Message ||
-  mongoose.model('Message', MessageSchema);
+  mongoose.model('Message', MessageModel);

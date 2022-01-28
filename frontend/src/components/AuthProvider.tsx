@@ -1,19 +1,19 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 import authProvider from '../auth';
-import { UserInterface } from '../types';
+import { User } from '../types';
 
 interface AuthContextType {
-  user: UserInterface | null;
-  signin: (user: UserInterface) => void;
+  user: User | null;
+  signin: (user: User) => void;
   signout: () => void;
 }
 
 let AuthContext = createContext<AuthContextType>(null!);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  let [user, setUser] = useState<UserInterface | null>(null);
+  let [user, setUser] = useState<User | null>(null);
 
-  let signin = (newUser: UserInterface) => {
+  let signin = (newUser: User) => {
     authProvider.signin(newUser);
     setUser(newUser);
   };

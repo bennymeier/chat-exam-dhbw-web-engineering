@@ -11,8 +11,10 @@ import {
   useColorModeValue,
   Link,
 } from '@chakra-ui/react';
-import { UserInterface } from '../types';
+import { CreateUser } from '../types';
 import UserApi from '../api/user.api';
+import { useAuth } from './AuthProvider';
+import { useNavigate } from 'react-router-dom';
 
 const initialUser = {
   username: '',
@@ -22,8 +24,10 @@ const initialUser = {
   avatar: '',
 };
 const Register = () => {
+  const auth = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<Partial<UserInterface>>(initialUser);
+  const [user, setUser] = useState<CreateUser>(initialUser);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUser((prevState) => ({
       ...prevState,
@@ -59,9 +63,10 @@ const Register = () => {
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      const data = await UserApi.create(user);
+      const res = await UserApi.create(user);
       setIsLoading(false);
-      setUser(initialUser);
+      auth.signin(res.data);
+      navigate(`/${res.data.lastChannelType}`, { replace: true });
     } catch (err) {
       setIsLoading(true);
       console.warn(err);

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import AsyncSelect from 'react-select/async';
-import { UserInterface } from '../types';
+import { User } from '../types';
 import UserApi from '../api/user.api';
-import User from './User';
+import UserComponent from './User';
 import { Box, Text } from '@chakra-ui/react';
 
 const NoOption = ({ inputValue }: { inputValue: string }) => {
@@ -20,7 +20,7 @@ const UserOption = (props: any) => {
   const { innerRef, innerProps, data } = props;
   return (
     <Box ref={innerRef} {...innerProps}>
-      <User user={data} />
+      <UserComponent user={data} />
     </Box>
   );
 };
@@ -36,7 +36,7 @@ const UserSearch: React.FC<UserSearchProps> = (props) => {
       try {
         setIsLoading(true);
         const res = await UserApi.search(value, '5');
-        const formatUsers = res.data.map((user: UserInterface) => {
+        const formatUsers = res.data.map((user: User) => {
           return {
             ...user,
             value: user._id,

@@ -3,28 +3,34 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from './components/AuthProvider';
 import ChatView from './components/ChatView';
 import Sidebar from './components/Sidebar';
-import { RoomInterface, UserInterface } from './types';
+import { Chat, Room, User } from './types';
 import RoomApi from './api/room.api';
+import ChatApi from './api/chat.api';
+import UserApi from './api/user.api';
 import { SocketProvider } from './components/SocketProvider';
 import { useToast } from '@chakra-ui/react';
-import EmptyRoom from './components/EmptyRoom';
+import EmptyChannel from './components/EmptyChannel';
 
 const App = () => {
   const toast = useToast();
   const navigate = useNavigate();
-  const { id } = useParams();
-  const { user: currentUser } = useAuth();
+  const { id: urlChannelId } = useParams();
+  const auth = useAuth();
+  const currentUser = auth.user as User;
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [currentRoom, setCurrentRoom] = useState<RoomInterface>();
-  const fetchRoomData = async (roomId: string) => {
+  const [currentChannel, setCurrentChannel] = useState<Room | Chat>();
+  const fetchChannel = async (channelId: string) => {
     try {
       setIsLoading(true);
-      const res = await RoomApi.get(roomId);
-      setCurrentRoom(res.data);
+      const user = await UserApi.get(currentUser._id);
+      const isRoom = user.data.lastChannelType === 'room';
+      const res = isRoom
+        ? await RoomApi.get(channelId)
+        : await ChatApi.get(channelId);
+      setCurrentChannel(res.data);
       setIsLoading(false);
       setShowSuggestions(false);
-      const isRoom = res.data?.isRoom;
       navigate(`/${isRoom ? 'room' : 'chat'}/${res.data._id}`);
     } catch (err) {
       toast({
@@ -35,19 +41,19 @@ const App = () => {
         duration: 3000,
         isClosable: true,
       });
-      console.warn(err);
+      console.error(err);
     }
   };
   useEffect(() => {
-    if (id) {
+    if (urlChannelId) {
       console.log('%cOpen conversation over URL..', 'color:green;');
-      fetchRoomData(id);
-    } else if (currentUser?.lastRoomId) {
+      fetchChannel(urlChannelId);
+    } else if (currentUser?.lastChannel) {
       console.log(
-        '%cOpen conversation over currentUser.lastRoomId.',
+        '%cOpen conversation over currentUser.lastChannel.',
         'color:green;'
       );
-      fetchRoomData(currentUser.lastRoomId);
+      fetchChannel(currentUser.lastChannel);
     } else {
       console.log(
         '%cCannot open last conversation, so show create or join chat/room.',
@@ -55,16 +61,16 @@ const App = () => {
       );
       setShowSuggestions(true);
     }
-  }, [id, currentUser]);
+  }, [urlChannelId, currentUser]);
 
   return (
-    <SocketProvider user={currentUser as UserInterface}>
-      <Sidebar currentRoom={currentRoom}>
-        {showSuggestions && <EmptyRoom />}
+    <SocketProvider user={currentUser}>
+      <Sidebar currentChannel={currentChannel}>
+        {showSuggestions && <EmptyChannel />}
         {!showSuggestions && (
           <ChatView
-            currentRoom={currentRoom as RoomInterface}
-            currentUser={currentUser as UserInterface}
+            currentChannel={currentChannel as Room & Chat}
+            currentUser={currentUser}
           />
         )}
       </Sidebar>

@@ -8,21 +8,15 @@ import {
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserInterface } from '../types';
+import { User } from '../types';
 import { useAuth } from './AuthProvider';
-import UserList from './UserList';
+import LoginUserList from './LoginUserList';
 import UserApi from '../api/user.api';
 import Register from './Register';
 
 const LoginPage = () => {
-  let navigate = useNavigate();
-  let auth = useAuth();
-
-  const handleClick = (user: UserInterface) => {
-    auth.signin(user);
-    navigate('/chat', { replace: true });
-  };
-
+  const navigate = useNavigate();
+  const auth = useAuth();
   const getUser = () => {
     const isLoggedIn = localStorage.getItem('slack_chat_user');
     let user = null;
@@ -39,7 +33,7 @@ const LoginPage = () => {
       );
       const data = await response.json();
       const res = data.results;
-      const users = res.map((user: any) => {
+      const users: User[] = res.map((user: any) => {
         return {
           mail: user.email,
           username: user.login.username,
@@ -48,11 +42,11 @@ const LoginPage = () => {
           avatar: user.picture.large,
         };
       });
-      users.forEach(async (user: Partial<UserInterface>) => {
+      users.forEach(async (user) => {
         await UserApi.create(user);
       });
       // TODO: Update userlist instead of hard reloading page
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       console.warn(err);
     }
@@ -73,10 +67,6 @@ const LoginPage = () => {
     }
   }, [auth, navigate]);
 
-  // if (auth && auth.user) {
-  //   navigate('/chat', { replace: true });
-  // }
-
   return (
     <>
       <Container
@@ -94,7 +84,7 @@ const LoginPage = () => {
             implemented authentication.
           </Heading>
           <Box maxHeight="640" overflowY="auto">
-            <UserList onClick={handleClick} />
+            <LoginUserList />
           </Box>
         </Stack>
         <Stack spacing={{ base: 5, md: 7 }}>

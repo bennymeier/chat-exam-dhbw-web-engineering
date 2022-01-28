@@ -1,29 +1,27 @@
-import { UserInterface } from '../types';
+import { CreateUser, UpdateUser } from '../types';
 import { API } from './api';
 
 class UserApi {
   getAll() {
     return API.get('/users');
   }
-  get(id: string) {
-    return API.get(`/user/${id}`);
+  get(userId: string) {
+    return API.get(`/user/${userId}`);
   }
-  getByParticipants(participants: string[]) {
-    return API.get(`/users/${JSON.stringify(participants)}`);
-  }
-  create(data: Partial<UserInterface>) {
+  create(data: CreateUser) {
     return API.post('/user', data);
   }
-  update(data: Partial<UserInterface>, id: string) {
-    return API.put(`/user/${id}`, data);
+  update(data: UpdateUser, userId: string) {
+    return API.put(`/user/${userId}`, data);
   }
-  delete(id: string) {
-    return API.delete(`/user/${id}`);
+  delete(userId: string) {
+    return API.delete(`/user/${userId}`);
   }
-  search(value: string, limit?: string) {
-    return API.get(
-      `/users/search/?value=${value}&limit=${!!limit ? limit : ''}`
-    );
+  search(value: string, limit = '0') {
+    return API.get(`/users/search/?value=${value}&limit=${limit}`);
+  }
+  getStatus(userId: string) {
+    return API.get(`/user/status/${userId}`);
   }
 }
 

@@ -22,27 +22,21 @@ import { FaUserFriends } from 'react-icons/fa';
 import { useAuth } from './AuthProvider';
 import RoomApi from '../api/room.api';
 import UserApi from '../api/user.api';
-import { UserInterface } from '../types';
+import { CreateRoom, UpdateUser, User } from '../types';
 import { useSocket } from './SocketProvider';
 import { useNavigate } from 'react-router-dom';
 
-interface RoomInterface {
-  name: string;
-  description?: string;
-  participants: string[];
-  isRoom: boolean;
-}
-const CreateRoom = () => {
+const CreateRoomComponent = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const socket = useSocket();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
-  const [room, setRoom] = useState<RoomInterface>({
+  const currentUser = useAuth().user as User;
+  const [room, setRoom] = useState<CreateRoom>({
     name: '',
     isRoom: true,
     description: '',
-    participants: [],
+    creator: currentUser._id,
   });
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRoom((prevState) => ({
@@ -53,14 +47,16 @@ const CreateRoom = () => {
   const handleSubmit = async () => {
     const roomData = {
       ...room,
-      participants: [(currentUser as UserInterface)._id],
+      creator: currentUser._id,
     };
     try {
       const res = await RoomApi.create(roomData);
       socket.emit('room:created', res.data);
-      onClose();
-      const userData = { ...currentUser, lastRoomId: res.data._id };
-      await UserApi.update(userData, (currentUser as UserInterface)._id);
+      const userData: UpdateUser = {
+        lastChannel: res.data._id,
+        lastChannelType: 'room',
+      };
+      await UserApi.update(userData, (currentUser as User)._id);
       navigate(`/room/${res.data._id}`, { replace: true });
       toast({
         title: 'Room created.',
@@ -69,6 +65,7 @@ const CreateRoom = () => {
         duration: 3000,
         isClosable: true,
       });
+      onClose();
     } catch (err) {
       toast({
         title: "Room couldn't be created.",
@@ -97,7 +94,7 @@ const CreateRoom = () => {
             <Stack>
               <Box>
                 <Text color="gray.500">
-                  Channels are where your team communicates.
+                  Rooms are where your team communicates.
                 </Text>
               </Box>
               <FormControl isRequired>
@@ -114,7 +111,7 @@ const CreateRoom = () => {
                 <Input
                   id="description"
                   name="description"
-                  placeholder="e.g. What's this channel about?"
+                  placeholder="e.g. What's this room about?"
                   onChange={handleChange}
                 />
               </FormControl>
@@ -142,4 +139,4 @@ const CreateRoom = () => {
   );
 };
 
-export default CreateRoom;
+export default CreateRoomComponent;

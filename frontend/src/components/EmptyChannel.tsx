@@ -2,7 +2,7 @@ import { Box, Flex, Heading } from '@chakra-ui/react';
 import CreateRoom from './CreateRoom';
 import CreateChat from './CreateChat';
 
-const EmptyRoom = () => {
+const EmptyChannel = () => {
   return (
     <>
       <Box>
@@ -22,4 +22,4 @@ const EmptyRoom = () => {
   );
 };
 
-export default EmptyRoom;
+export default EmptyChannel;

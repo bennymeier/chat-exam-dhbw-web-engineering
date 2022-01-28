@@ -6,7 +6,8 @@ const createMessage = async (req: Request, res: Response) => {
     const message = new Message(req.body);
     const data = await message.save();
     return res.status(201).json(data);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(400).json({ error: "Message couldn't be created!" });
   }
 };
@@ -15,7 +16,8 @@ const updateMessage = async (req: Request, res: Response) => {
   try {
     const message = await Message.updateOne({ _id: req.params.id }, req.body);
     return res.status(200).json(message);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: "Message doesn't exist!" });
   }
 };
@@ -24,7 +26,8 @@ const deleteMessage = async (req: Request, res: Response) => {
   try {
     await Message.findOneAndDelete({ _id: req.params.id });
     return res.status(204).send();
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(400).json({ error: 'Message couldn*t be deleted!' });
   }
 };
@@ -33,7 +36,8 @@ const getMessageById = async (req: Request, res: Response) => {
   try {
     const message = await Message.findOne({ _id: req.params.id }).lean();
     return res.status(200).json(message);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: "Message doesn't exist!" });
   }
 };
@@ -42,7 +46,8 @@ const getMessages = async (req: Request, res: Response) => {
   try {
     const messages = await Message.find({}).lean();
     return res.status(200).json(messages);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: 'Messages not found!' });
   }
 };
@@ -50,10 +55,11 @@ const getMessages = async (req: Request, res: Response) => {
 const getMessagesByRoomId = async (req: Request, res: Response) => {
   try {
     const messages = await Message.find({ roomId: req.params.id })
-      .populate('senderId')
+      .populate('sender')
       .lean();
     return res.status(200).json(messages);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(404).json({ error: 'Messages not found!' });
   }
 };

@@ -1,24 +1,24 @@
-import { MessageInterface } from '../types';
+import { CreateMessage, UpdateMessage } from '../types';
 import { API } from './api';
 
 class MessageApi {
   getAll() {
     return API.get('/messages');
   }
-  get(id: string) {
-    return API.get(`/message/${id}`);
+  get(messageId: string) {
+    return API.get(`/message/${messageId}`);
   }
-  getMessagesByRoomId(roomId: string) {
-    return API.get(`/messages/${roomId}`);
+  getMessagesByChannelId(channelId: string) {
+    return API.get(`/messages/${channelId}`);
   }
-  create(data: Partial<MessageInterface>) {
+  create(data: CreateMessage) {
     return API.post('/message', data);
   }
-  update(data: MessageInterface, id: string) {
-    return API.put(`/message/${id}`, data);
+  update(data: UpdateMessage, messageId: string) {
+    return API.put(`/message/${messageId}`, data);
   }
-  delete(id: string) {
-    return API.delete(`/message/${id}`);
+  delete(messageId: string) {
+    return API.delete(`/message/${messageId}`);
   }
 }
 

@@ -1,54 +1,34 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { StatusInterface, UserInterface } from '../types';
-import { useAuth } from './AuthProvider';
+import { User } from '../types';
 import UserApi from '../api/user.api';
-import User from './User';
-import { useSocket } from './SocketProvider';
+import UserComponent from './User';
 
-interface UserListProps {
-  onClick?: (user: UserInterface) => void;
-  showAllUser?: boolean;
-}
-const UserList = (props: UserListProps) => {
-  const { onClick, showAllUser = true } = props;
-  const socket = useSocket();
-  const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+const UserList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [users, setUsers] = useState<UserInterface[]>([]);
-  const getUsers = () => {
-    let allUsers = users;
-    if (!showAllUser) {
-      allUsers = allUsers.filter(
-        (user: UserInterface) => user._id !== (currentUser as UserInterface)._id
-      );
-    }
-    return allUsers;
-  };
+  const [users, setUsers] = useState<User[]>([]);
 
-  useEffect(() => {
-    socket.on(
-      'status:change',
-      ({ user, status }: { user: UserInterface; status: StatusInterface }) => {
-        const allUsers = users.map((userObj) => {
-          if (userObj._id === user._id) {
-            return { ...userObj, status: status.id };
-          }
-          return userObj;
-        });
-        setUsers(allUsers);
-        console.log(
-          `${user.firstname} ${user.lastname} changed his status to ${status.text}`
-        );
-      }
-    );
-    return () => {
-      socket.off('status:change');
-    };
-  }, [socket, users]);
+  // useEffect(() => {
+  //   socket.on(
+  //     'status:change',
+  //     ({ user, status }: { user: User; status: Status }) => {
+  //       const allUsers = users.map((userObj) => {
+  //         if (userObj._id === user._id) {
+  //           return { ...userObj, status: status.id };
+  //         }
+  //         return userObj;
+  //       });
+  //       setUsers(allUsers);
+  //       console.log(
+  //         `${user.firstname} ${user.lastname} changed his status to ${status.text}`
+  //       );
+  //     }
+  //   );
+  //   return () => {
+  //     socket.off('status:change');
+  //   };
+  // }, [socket, users]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,12 +59,6 @@ const UserList = (props: UserListProps) => {
       </>
     );
 
-  const handleClick = (user: UserInterface) => {
-    if (onClick) {
-      onClick(user);
-    }
-  };
-
   return (
     <Box
       overflowY="auto"
@@ -104,8 +78,8 @@ const UserList = (props: UserListProps) => {
         },
       }}
     >
-      {getUsers().map((user: UserInterface) => (
-        <User key={user._id} user={user} onClick={handleClick} />
+      {users.map((user: User) => (
+        <UserComponent key={user._id} user={user} shouldNavigate />
       ))}
     </Box>
   );

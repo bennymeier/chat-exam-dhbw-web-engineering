@@ -1,22 +1,22 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
-import { RoomInterface, UserInterface } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { User } from '../types';
 import Status from './Status';
 
 interface UserProps {
-  user: UserInterface;
-  room?: RoomInterface;
-  onClick?: (user: UserInterface, room?: RoomInterface) => void;
-  activeId?: string;
+  user: User;
+  shouldNavigate?: boolean;
 }
-const User: React.FC<UserProps> = (props) => {
-  const { user, room, onClick, activeId } = props;
-  const { firstname, lastname, mail } = user;
-  const isCurrentRoom = room?._id === activeId;
+const UserComponent: React.FC<UserProps> = (props) => {
+  const { user, shouldNavigate } = props;
+  const { firstname, lastname, mail, lastChannel } = user;
+  const navigate = useNavigate();
   const handleClick = () => {
-    if (onClick) {
-      onClick(user, room);
+    if (shouldNavigate) {
+      navigate(`/chat/${lastChannel}`, { replace: true });
     }
   };
+
   return (
     <Flex
       userSelect="none"
@@ -24,17 +24,16 @@ const User: React.FC<UserProps> = (props) => {
       padding="2"
       role="group"
       cursor="pointer"
-      bg={isCurrentRoom ? 'teal.500' : ''}
-      color={isCurrentRoom ? 'white' : ''}
       _hover={{
         bg: 'teal.500',
         color: 'white',
       }}
+      textAlign="left"
       onClick={handleClick}
     >
       <Status user={user} />
       <Flex flexDirection="column" alignItems="baseline" width="100%">
-        <Heading size="xs">
+        <Heading size="xs" isTruncated width="95%">
           {firstname} {lastname}
         </Heading>
         <Text fontSize="xs" isTruncated width="95%">
@@ -45,4 +44,4 @@ const User: React.FC<UserProps> = (props) => {
   );
 };
 
-export default User;
+export default UserComponent;

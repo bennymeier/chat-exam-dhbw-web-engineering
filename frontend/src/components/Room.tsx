@@ -1,19 +1,24 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
-import { RoomInterface } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { Room, User } from '../types';
+import UserApi from '../api/user.api';
 
 interface UserProps {
-  room: RoomInterface;
-  onClick?: (room: RoomInterface) => void;
+  room: Room;
   activeId: string;
+  currentUser: User;
 }
-const Room: React.FC<UserProps> = (props) => {
-  const { room, onClick, activeId } = props;
+const RoomComponent: React.FC<UserProps> = (props) => {
+  const navigate = useNavigate();
+  const { room, activeId, currentUser } = props;
   const { name, description } = room;
   const isCurrentRoom = room._id === activeId;
-  const handleClick = () => {
-    if (onClick) {
-      onClick(room);
-    }
+  const handleClick = async () => {
+    await UserApi.update(
+      { lastChannelType: 'room', lastChannel: room._id },
+      currentUser._id
+    );
+    navigate(`/room/${room._id}`, { replace: true });
   };
   return (
     <Flex
@@ -28,10 +33,13 @@ const Room: React.FC<UserProps> = (props) => {
         bg: 'teal.500',
         color: 'white',
       }}
+      textAlign="left"
       onClick={handleClick}
     >
       <Flex flexDirection="column" alignItems="baseline" width="100%">
-        <Heading size="xs">{name}</Heading>
+        <Heading size="xs" isTruncated width="95%">
+          {name}
+        </Heading>
         <Text fontSize="xs" isTruncated width="95%">
           {description}
         </Text>
@@ -40,4 +48,4 @@ const Room: React.FC<UserProps> = (props) => {
   );
 };
 
-export default Room;
+export default RoomComponent;

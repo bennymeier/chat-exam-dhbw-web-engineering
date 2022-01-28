@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import io, { type Socket } from 'socket.io-client';
 import { SOCKET_URL } from '../api/api';
-import { UserInterface } from '../types';
+import { User } from '../types';
 
 const defaultSocket = io(SOCKET_URL, { autoConnect: false });
 export const SocketContext = createContext(defaultSocket);
 
 interface SocketProviderProps {
-  user: UserInterface;
+  user: User;
 }
 export const SocketProvider: React.FC<SocketProviderProps> = ({
   children,

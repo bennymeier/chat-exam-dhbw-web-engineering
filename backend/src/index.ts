@@ -2,12 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import { establishMongoDBConnection } from './db.connection';
 import RoomRouter from './routers/room.router';
+import ChatRouter from './routers/chat.router';
 import UserRouter from './routers/user.router';
 import MessageRouter from './routers/message.router';
 import { establishSocketConnection } from './socket.connection';
-import { MessageInterface } from './models/message.model';
-import { UserInterface } from './models/user.model';
-import Room, { RoomInterface } from './models/room.model';
+import { Room, Message, User, Chat, Channel } from './types';
 
 const apiPort = 3001 || process.env.PORT;
 
@@ -16,7 +15,7 @@ const io = establishSocketConnection(app);
 
 app.use(cors());
 app.use(express.json());
-app.use('/api', [RoomRouter, UserRouter, MessageRouter]);
+app.use('/api', [RoomRouter, ChatRouter, UserRouter, MessageRouter]);
 
 establishMongoDBConnection();
 
@@ -26,47 +25,53 @@ app.listen(apiPort, () => {
 
 io.on('connection', (socket) => {
   const currentUser = socket.handshake.auth;
+  socket.join(currentUser._id);
 
   // Room created
-  socket.on('room:created', (room: RoomInterface) => {
+  socket.on('room:created', (room: Room) => {
     socket.broadcast.emit('room:created', room);
   });
 
   // Room deleted
-  socket.on('room:deleted', (room: RoomInterface) => {
+  socket.on('room:deleted', (room: Room) => {
     socket.broadcast.emit('room:deleted', room);
   });
 
   // Chat created
-  socket.on('chat:created', (chat: RoomInterface) => {
-    socket.broadcast.emit('chat:created', chat);
+  socket.on('chat:create', (chat: Chat) => {
+    console.log('Chat ', chat);
+    console.log(`User A ${currentUser.firstname}`);
+    console.log(`User B Partner ${chat.partner.firstname}`);
+    console.log(`User C Creator ${chat.creator.firstname}`);
+    socket.broadcast.to(chat.partner._id).emit('chat:create', chat);
   });
 
   // Chat deleted
-  socket.on('chat:deleted', (chat: RoomInterface) => {
+  socket.on('chat:delete', (chat: Chat) => {
     socket.broadcast.emit('chat:deleted', chat);
   });
 
   // User joined room
-  socket.on('room:join', (room: RoomInterface) => {
+  socket.on('room:join', (room: Room) => {
     socket.join(room._id);
   });
 
   // User left room
-  socket.on('room:leave', (room: RoomInterface) => {
+  socket.on('room:leave', (room: Room) => {
     socket.leave(room._id);
   });
 
   // User sent message
-  socket.on('message', ({ message }: { message: MessageInterface }) => {
-    socket.to(message.roomId.toString()).emit('message', message);
+  socket.on('message', ({ message }: { message: Message }) => {
+    socket.to(message.channel._id).emit('message', message);
   });
 
   // Online Status changed
   socket.on(
     'status:change',
-    ({ user, status }: { user: UserInterface; status: any }) => {
-      socket.broadcast.emit('status:change', { user, status });
+    ({ user, statusId }: { user: User; statusId: string }) => {
+      console.log(`Change status of ${user.firstname} to ${statusId}`);
+      socket.broadcast.emit('status:change', { user, statusId });
     }
   );
 
@@ -80,12 +85,12 @@ io.on('connection', (socket) => {
     'user:typing',
     ({
       currentUser,
-      currentRoom,
+      currentChannel,
     }: {
-      currentUser: UserInterface;
-      currentRoom: RoomInterface;
+      currentUser: User;
+      currentChannel: Channel;
     }) => {
-      socket.to(currentRoom._id).emit('user:typing', [currentUser]);
+      socket.to(currentChannel._id).emit('user:typing', [currentUser]);
     }
   );
 });

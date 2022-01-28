@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import {
   IconButton,
   Box,
@@ -40,25 +40,38 @@ import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { useSocket } from './SocketProvider';
-import {
-  allStatus,
-  RoomInterface,
-  StatusInterface,
-  UserInterface,
-} from '../types';
+import { allStatus, Room, Chat, Status, User } from '../types';
 import UserApi from '../api/user.api';
-import Status from './Status';
+import StatusComponent from './Status';
 import ConversationList from './ConversationList';
 import ConversationSuggestions from './ConversationSuggestions';
 
 interface SidebarProps {
   children: ReactNode;
-  currentRoom?: RoomInterface;
+  currentChannel?: Room | Chat;
 }
 
 const Sidebar = ({ children, ...props }: SidebarProps) => {
-  const { currentRoom } = props;
+  const { currentChannel } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const socket = useSocket();
+
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('%cSocket connected.', 'color:green;');
+    });
+    socket.on('disconnect', () => {
+      console.log('%cSocket disconnected.', 'color:red;');
+    });
+    socket.on('reconnect', () => {
+      console.log('%cSocket reconnected.', 'color:green;');
+    });
+    return () => {
+      socket.disconnect();
+      socket.off('room:join');
+      socket.off('room:leave');
+    };
+  }, [socket]);
 
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
@@ -79,7 +92,7 @@ const Sidebar = ({ children, ...props }: SidebarProps) => {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <Navbar onOpen={onOpen} currentRoom={currentRoom} />
+      <Navbar onOpen={onOpen} currentChannel={currentChannel} />
       <Box ml={{ base: 0, md: 80 }} p="4">
         {children}
       </Box>
@@ -90,7 +103,6 @@ const Sidebar = ({ children, ...props }: SidebarProps) => {
 interface SidebarContentProps extends BoxProps {
   onClose: () => void;
 }
-
 const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
   const { isOpen, onOpen, onClose: onCloseSuggestionModal } = useDisclosure();
 
@@ -139,33 +151,39 @@ const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
 
 interface NavbarProps extends FlexProps {
   onOpen: () => void;
-  currentRoom?: RoomInterface;
+  currentChannel?: Chat | Room;
 }
 const Navbar = ({ onOpen, ...props }: NavbarProps) => {
-  const { currentRoom } = props;
+  const { currentChannel } = props;
   const { isOpen, onOpen: onEditProfileOpen, onClose } = useDisclosure();
-  const [participants, setParticipants] = useState<UserInterface[]>([]);
   const auth = useAuth();
-  const [user, setUser] = useState<UserInterface>(auth.user as UserInterface);
+  const [user, setUser] = useState<User>(auth.user as User);
   const navigate = useNavigate();
   const socket = useSocket();
   const handleSignOut = () => {
     authProvider.signout();
     navigate('/');
   };
-  const getParticipantsName = () => {
-    return participants.map(
-      (participant) => `${participant.firstname} ${participant.lastname}`
-    );
-  };
-  const handleStatusChange = async (status: StatusInterface) => {
-    const userObj = { ...user, status: status.id };
+  const handleStatusChange = async (statusId: string) => {
+    const userObj = { ...user, status: statusId };
     try {
       await UserApi.update(userObj, user._id);
-      socket.emit('status:change', { user, status });
+      socket.emit('status:change', { user, statusId });
       setUser(userObj);
     } catch (err) {
       console.warn(err);
+    }
+  };
+  const getChannelName = () => {
+    if (currentChannel?.name) {
+      return currentChannel.name;
+      // @ts-ignore
+    } else if (currentChannel?.partner) {
+      // @ts-ignore
+      const { partner } = currentChannel;
+      // @ts-ignore
+      const { firstname, lastname } = partner;
+      return `${firstname} ${lastname}`;
     }
   };
 
@@ -200,7 +218,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
         </Text>
 
         <HStack spacing={{ base: '0', md: '6' }}>
-          <Heading size="xs">{getParticipantsName()}</Heading>
+          <Heading size="xs">{getChannelName()}</Heading>
           <IconButton
             size="lg"
             variant="ghost"
@@ -215,7 +233,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
                 _focus={{ boxShadow: 'none' }}
               >
                 <HStack>
-                  <Status user={user} />
+                  <StatusComponent user={user} />
                   <VStack
                     display={{ base: 'none', md: 'flex' }}
                     alignItems="flex-start"
@@ -241,7 +259,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
                 {allStatus.map((status) => (
                   <MenuItem
                     key={status.id}
-                    onClick={() => handleStatusChange(status)}
+                    onClick={() => handleStatusChange(status.id)}
                   >
                     <Flex alignItems="center" gap="0.5em">
                       <Box

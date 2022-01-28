@@ -1,20 +1,19 @@
 import { Box, Flex, Divider } from '@chakra-ui/react';
 import MessageBox from './MessageBox';
-import Message from './Message';
-import { MessageInterface, RoomInterface, UserInterface } from '../types';
+import MessageComponent from './Message';
+import { Chat, Message, Room, User } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
-import UserApi from '../api/user.api';
 import { useSocket } from './SocketProvider';
 
 interface ChatViewProps {
-  currentRoom: RoomInterface;
-  currentUser: UserInterface;
+  currentChannel: Room | Chat;
+  currentUser: User;
 }
 const ChatView: React.FC<ChatViewProps> = (props) => {
-  const { currentRoom, currentUser } = props;
-  const [messages, setMessages] = useState<MessageInterface[]>([]);
+  const { currentChannel, currentUser } = props;
+  const [messages, setMessages] = useState<Message[]>([]);
   const { id: chatPartnerId } = useParams();
   const socket = useSocket();
   const messagesContainer = useRef<HTMLDivElement>(null);
@@ -30,7 +29,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
       }
     }
   };
-  const handleNewMessage = (message: MessageInterface) => {
+  const handleNewMessage = (message: Message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
     socket.emit('message', {
       message,
@@ -40,63 +39,26 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await MessageApi.getMessagesByRoomId(currentRoom._id);
+        const res = await MessageApi.getMessagesByChannelId(currentChannel._id);
         setMessages(res.data);
       } catch (err) {
         console.warn(err);
       }
     };
-    if (currentRoom?._id) {
+    if (currentChannel?._id) {
       fetchMessages();
     }
-  }, [chatPartnerId, currentRoom?._id]);
-
-  const saveLastRoomId = async () => {
-    const userObj = { ...currentUser, lastRoomId: currentRoom._id };
-    try {
-      return await UserApi.update(userObj, currentUser._id);
-    } catch (err) {
-      console.warn(err);
-      return Promise.reject(err);
-    }
-  };
-
-  useEffect(() => {
-    if (currentRoom?._id) {
-      console.log('Join room ', currentRoom._id);
-      saveLastRoomId().then(() => socket.emit('room:join', currentRoom));
-    }
-    return () => {
-      if (currentRoom) {
-        console.log('Leave room', currentRoom);
-        socket.emit('room:leave', currentRoom);
-      } else {
-        console.log('How can I leave a room if I joined none??');
-      }
-    };
-  }, [currentRoom]);
+  }, [chatPartnerId, currentChannel?._id]);
 
   useEffect(() => {
     setTimeout(() => scrollToBottom(), 50);
   }, [messages]);
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('%cSocket connected.', 'color:green;');
-    });
-    socket.on('disconnect', () => {
-      console.log('%cSocket disconnected.', 'color:red;');
-    });
-    socket.on('reconnect', () => {
-      console.log('%cSocket reconnected.', 'color:green;');
-    });
-    socket.on('message', (message: MessageInterface) => {
+    socket.on('message', (message: Message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
     return () => {
-      socket.disconnect();
-      socket.off('room:join');
-      socket.off('room:leave');
       socket.off('message');
     };
   }, [socket]);
@@ -122,7 +84,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
           ref={messagesContainer}
         >
           {messages.map((message) => (
-            <Message
+            <MessageComponent
               key={message._id}
               message={message}
               currentUser={currentUser}
@@ -132,7 +94,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
         <Divider borderBottomWidth="3px" />
         <Box>
           <MessageBox
-            currentRoom={currentRoom}
+            currentChannel={currentChannel}
             currentUser={currentUser}
             messageSentCallback={handleNewMessage}
           />

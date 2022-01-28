@@ -1,21 +1,21 @@
 import { Avatar, Box, Flex, Text } from '@chakra-ui/react';
 import moment from 'moment';
-import { MessageInterface, UserInterface } from '../types';
+import { Message, User } from '../types';
 
 interface MessageProps {
-  message: MessageInterface;
-  currentUser: UserInterface;
+  message: Message;
+  currentUser: User;
 }
-const Message: React.FC<MessageProps> = (props) => {
+const MessageComponent: React.FC<MessageProps> = (props) => {
   const { message, currentUser } = props;
-  const { senderId } = message;
+  const { sender } = message;
   const getUser = () => {
-    // senderId as string
-    if (typeof senderId === 'string') {
+    // sender as string
+    if (typeof sender === 'string') {
       return currentUser;
     } else {
-      // senderId as UserInterface
-      return senderId;
+      // sender as User
+      return sender;
     }
   };
   const isMine = getUser()._id === currentUser._id;
@@ -55,4 +55,4 @@ const Message: React.FC<MessageProps> = (props) => {
   );
 };
 
-export default Message;
+export default MessageComponent;

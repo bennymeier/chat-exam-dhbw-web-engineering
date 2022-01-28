@@ -1,77 +1,55 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { RoomInterface, StatusInterface, UserInterface } from '../types';
+import { useParams } from 'react-router-dom';
+import { ChannelType, Chat, Room, User } from '../types';
 import { useAuth } from './AuthProvider';
 import RoomApi from '../api/room.api';
+import ChatApi from '../api/chat.api';
 import { useSocket } from './SocketProvider';
-import User from './User';
-import Room from './Room';
+import ChatComponent from './Chat';
+import RoomComponent from './Room';
 import SmallSidebar from './SmallSidebar';
 
 const ConversationList = () => {
   const socket = useSocket();
-  const navigate = useNavigate();
   const { id: conversationId } = useParams();
-  const { user: currentUser } = useAuth();
+  const currentUser = useAuth().user as User;
   const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [chats, setChats] = useState<RoomInterface[]>([]);
-  const [rooms, setRooms] = useState<RoomInterface[]>([]);
-  const [activeMenu, setActiveMenu] = useState('Rooms');
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [activeMenu, setActiveMenu] = useState<ChannelType>(
+    currentUser.lastChannelType
+  );
+  const handleSidebarClick = (activeMenu: ChannelType) => {
+    setActiveMenu(activeMenu);
+  };
 
   useEffect(() => {
-    socket.on(
-      'status:change',
-      ({ user, status }: { user: UserInterface; status: StatusInterface }) => {
-        // const allUsers = users.map((userObj) => {
-        //   if (userObj._id === user._id) {
-        //     return { ...userObj, status: status.id };
-        //   }
-        //   return userObj;
-        // });
-        // setUsers(allUsers);
-        // console.log(
-        //   `${user.firstname} ${user.lastname} changed his status to ${status.text}`
-        // );
-      }
-    );
+    socket.on('chat:create', (chat: Chat) => {
+      setChats((prevChats) => [chat, ...prevChats]);
+    });
     return () => {
       socket.off('status:change');
+      socket.off('chat:create');
     };
   }, [socket, chats]);
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsError(false);
       setIsLoading(true);
       try {
-        const res = await RoomApi.getAll(
-          undefined,
-          false,
-          (currentUser as UserInterface)._id
-        );
-        const checkMenu: RoomInterface = res.data.find(
-          (conversation: RoomInterface) => conversation._id === conversationId
-        );
-        if (checkMenu?.isRoom) {
-          setActiveMenu('Rooms');
-        } else {
-          setActiveMenu('Chats');
-        }
-        const rooms = res.data.filter((room: RoomInterface) => room.isRoom);
-        setRooms(rooms);
-        const chats = res.data.filter((chat: RoomInterface) => !chat.isRoom);
-        setChats(chats);
+        const allRooms = await RoomApi.getCurrentUserRooms(currentUser._id);
+        setRooms(allRooms.data);
+        const allChats = await ChatApi.getCurrentUserChats(currentUser._id);
+        setChats(allChats.data);
+        setIsLoading(false);
       } catch (err) {
-        setIsError(true);
+        console.error(err);
       }
-      setIsLoading(false);
     };
     fetchData();
+    // TODO: without activeMenu it re renders perfectly, but the user status gets the old if u change to rooms and back
   }, [conversationId]);
-
-  if (isError) return <Box>Fetching users went wrong.</Box>;
 
   if (isLoading)
     return (
@@ -84,19 +62,6 @@ const ConversationList = () => {
         ))}
       </>
     );
-
-  const handleRoomClick = (room: RoomInterface) => {
-    navigate(`/room/${room._id}`, { replace: true });
-  };
-
-  const handleUserClick = (user: UserInterface, room?: RoomInterface) => {
-    if (room) {
-      navigate(`/chat/${room._id}`, { replace: true });
-    }
-  };
-  const handleSidebarClick = (activeMenu: string) => {
-    setActiveMenu(activeMenu);
-  };
 
   return (
     <Flex
@@ -118,28 +83,24 @@ const ConversationList = () => {
       }}
     >
       <SmallSidebar onClick={handleSidebarClick} activeMenu={activeMenu} />
-      <Box width="100%" bgColor="gray.300">
-        {activeMenu === 'Rooms' &&
+      <Box width="calc(100% - 4rem)" bgColor="gray.300">
+        {activeMenu === 'room' &&
           rooms.map((room) => (
-            <Room
+            <RoomComponent
+              currentUser={currentUser}
               room={room}
               key={room._id}
-              onClick={handleRoomClick}
               activeId={conversationId as string}
             />
           ))}
-        {activeMenu === 'Chats' &&
+        {activeMenu === 'chat' &&
           chats.map((chat) => {
-            const user = chat.participants.find(
-              (participant) => participant._id !== currentUser?._id
-            );
             return (
-              <User
-                room={chat}
-                user={user as UserInterface}
+              <ChatComponent
+                currentUser={currentUser}
+                chat={chat}
                 key={chat._id}
-                onClick={handleUserClick}
-                activeId={conversationId as string}
+                activeChannelId={conversationId as string}
               />
             );
           })}

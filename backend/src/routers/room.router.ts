@@ -8,5 +8,9 @@ router.put('/room/:id', RoomController.updateRoom);
 router.delete('/room/:id', RoomController.deleteRoom);
 router.get('/room/:id', RoomController.getRoom);
 router.get('/rooms/:query', RoomController.getRooms);
+router.put('/room/join/:id', RoomController.joinRoom);
+router.put('/room/leave/:id', RoomController.leaveRoom);
+router.get('/rooms/search/:params', RoomController.searchRoom);
+router.get('/rooms/user/:id', RoomController.getCurrentUserRooms);
 
 export default router;

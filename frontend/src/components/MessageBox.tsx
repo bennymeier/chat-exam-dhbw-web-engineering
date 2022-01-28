@@ -1,19 +1,19 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Box, Flex, IconButton, Textarea } from '@chakra-ui/react';
 import { FaTelegramPlane } from 'react-icons/fa';
-import { MessageInterface, RoomInterface, UserInterface } from '../types';
+import { Chat, CreateMessage, Message, Room, User } from '../types';
 import MessageApi from '../api/message.api';
 import { useSocket } from './SocketProvider';
 import TypingUsers from './TypingUsers';
 import useIsTyping from './TypingHook';
 
 interface MessageBoxProps {
-  currentRoom: RoomInterface;
-  currentUser: UserInterface;
-  messageSentCallback: (message: MessageInterface) => void;
+  currentChannel: Room | Chat;
+  currentUser: User;
+  messageSentCallback: (message: Message) => void;
 }
 const MessageBox: React.FC<MessageBoxProps> = (props) => {
-  const { currentRoom, currentUser, messageSentCallback } = props;
+  const { currentChannel, currentUser, messageSentCallback } = props;
   const [value, setValue] = useState('');
   const [isTyping, register] = useIsTyping();
   const socket = useSocket();
@@ -25,16 +25,16 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
   useEffect(() => {
     if (isTyping) {
       console.log('User is still typing.');
-      socket.emit('user:typing', { currentRoom, currentUser });
+      socket.emit('user:typing', { currentChannel, currentUser });
     } else {
       console.log('User stopped typing.');
     }
   }, [isTyping]);
 
   const sendMessage = async () => {
-    const data: any = {
-      senderId: currentUser._id,
-      roomId: currentRoom._id,
+    const data: CreateMessage = {
+      sender: currentUser._id,
+      channel: currentChannel._id,
       content: value,
     };
     try {
