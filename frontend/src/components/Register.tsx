@@ -138,9 +138,9 @@ const Register = () => {
           <Stack spacing={10} pt={2}>
             <Button
               disabled={
-                !user.username &&
-                !user.firstname &&
-                !user.lastname &&
+                !user.username ||
+                !user.firstname ||
+                !user.lastname ||
                 !user.mail
               }
               isLoading={isLoading}
