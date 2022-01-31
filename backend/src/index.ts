@@ -23,9 +23,20 @@ app.listen(apiPort, () => {
   console.log('Server listening on port: ', apiPort);
 });
 
+let usersOnline: User[] = [];
+
 io.on('connection', (socket) => {
   const currentUser = socket.handshake.auth;
-  socket.join(currentUser._id);
+  usersOnline.push(currentUser as User);
+
+  // Users goes offline (closes tab)
+  socket.on('disconnect', () => {
+    const user = socket.handshake.auth;
+    const userlist = usersOnline.filter(
+      (currUser) => currUser._id !== user._id
+    );
+    usersOnline = userlist;
+  });
 
   // Room created
   socket.on('room:created', (room: Room) => {
@@ -63,6 +74,7 @@ io.on('connection', (socket) => {
 
   // User sent message
   socket.on('message', ({ message }: { message: Message }) => {
+    console.log('MSG: ', message);
     socket.to(message.channel._id).emit('message', message);
   });
 

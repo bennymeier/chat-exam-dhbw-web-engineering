@@ -18,6 +18,13 @@ const MessageComponent: React.FC<MessageProps> = (props) => {
       return sender;
     }
   };
+  const getDate = () => {
+    const isToday = moment(message.createdAt).isSame(new Date(), 'day');
+    if (!isToday) {
+      return new Date(message.createdAt).toLocaleString();
+    }
+    return moment(message.createdAt).fromNow();
+  };
   const isMine = getUser()._id === currentUser._id;
   const fullname = `${getUser().firstname} ${getUser().lastname}`;
   return (
@@ -45,7 +52,7 @@ const MessageComponent: React.FC<MessageProps> = (props) => {
               fontSize="xs"
               title={new Date(message.createdAt).toLocaleString()}
             >
-              {moment(message.createdAt).fromNow()}
+              {getDate()}
             </Text>
           </Flex>
           <Text fontSize="sm">{message.content}</Text>

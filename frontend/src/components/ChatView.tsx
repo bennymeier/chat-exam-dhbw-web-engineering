@@ -5,6 +5,7 @@ import { Chat, Message, Room, User } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
+import UserApi from '../api/user.api';
 import { useSocket } from './SocketProvider';
 
 interface ChatViewProps {

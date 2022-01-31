@@ -15,6 +15,7 @@ interface MessageBoxProps {
 const MessageBox: React.FC<MessageBoxProps> = (props) => {
   const { currentChannel, currentUser, messageSentCallback } = props;
   const [value, setValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [isTyping, register] = useIsTyping();
   const socket = useSocket();
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -24,10 +25,7 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
 
   useEffect(() => {
     if (isTyping) {
-      console.log('User is still typing.');
       socket.emit('user:typing', { currentChannel, currentUser });
-    } else {
-      console.log('User stopped typing.');
     }
   }, [isTyping]);
 
@@ -38,7 +36,9 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
       content: value,
     };
     try {
+      setIsLoading(true);
       const res = await MessageApi.create(data);
+      setIsLoading(false);
       setValue('');
       messageSentCallback(res.data);
     } catch (err) {
@@ -60,6 +60,8 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
           size="sm"
         />
         <IconButton
+          isLoading={isLoading}
+          disabled={!value}
           icon={<FaTelegramPlane />}
           aria-label="Send Message"
           onClick={sendMessage}

@@ -63,6 +63,16 @@ const App = () => {
     }
   }, [urlChannelId, currentUser]);
 
+  useEffect(() => {
+    const setUserStatusOffline = async () => {
+      await UserApi.update({ status: 'offline' }, currentUser._id);
+    };
+    window.addEventListener('beforeunload', setUserStatusOffline);
+    return () => {
+      window.removeEventListener('beforeunload', setUserStatusOffline);
+    };
+  }, []);
+
   return (
     <SocketProvider user={currentUser}>
       <Sidebar currentChannel={currentChannel}>
