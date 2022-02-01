@@ -57,6 +57,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
 
   useEffect(() => {
     socket.on('message', (message: Message) => {
+      console.log("NEW MSG: ", message);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
     return () => {

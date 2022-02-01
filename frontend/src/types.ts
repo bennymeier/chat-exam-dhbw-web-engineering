@@ -52,7 +52,7 @@ export interface User extends MongoSchema {
   avatar?: string;
   status: string;
   lastChannel: string;
-  lastChannelType: 'room' | 'chat';
+  lastChannelType: ChannelType;
 }
 
 /* Message */

@@ -23,19 +23,15 @@ app.listen(apiPort, () => {
   console.log('Server listening on port: ', apiPort);
 });
 
-let usersOnline: User[] = [];
+let connectedUsers: any = {};
 
 io.on('connection', (socket) => {
   const currentUser = socket.handshake.auth;
-  usersOnline.push(currentUser as User);
+  connectedUsers[currentUser._id] = socket.handshake.auth;
 
   // Users goes offline (closes tab)
   socket.on('disconnect', () => {
-    const user = socket.handshake.auth;
-    const userlist = usersOnline.filter(
-      (currUser) => currUser._id !== user._id
-    );
-    usersOnline = userlist;
+    delete connectedUsers[currentUser._id];
   });
 
   // Room created
@@ -74,7 +70,8 @@ io.on('connection', (socket) => {
 
   // User sent message
   socket.on('message', ({ message }: { message: Message }) => {
-    console.log('MSG: ', message);
+    console.log(message);
+    console.log(connectedUsers)
     socket.to(message.channel._id).emit('message', message);
   });
 

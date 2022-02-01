@@ -34,17 +34,27 @@
 1. Run `yarn install` or `npm install` in the **root directory**
 2. Run `yarn start` or `npm start` to install and run the backend and frontend automatically, thanks to [concurrently](https://www.npmjs.com/package/concurrently)
 
+### Collections
+
+| Collection | Description      |
+| ---------- | ---------------- |
+| users      | Stores users     |
+| rooms      | Stores rooms     |
+| chats      | Stores chats     |
+| messages   | Stores messages  |
+| reactions  | Stores reactions |
+
 ### REST-API
 
 #### User API
 
-| Methods | URLs          | Actions           |
-| ------- | ------------- | ----------------- |
-| POST    | /api/user     | create user       |
-| GET     | /api/user/:id | get user by id    |
-| PUT     | /api/user/:id | update user by id |
-| DELETE  | /api/user/:id | delete user by id |
-| GET     | /api/users    | get all users     |
+| Method | URL           | Action            |
+| ------ | ------------- | ----------------- |
+| POST   | /api/user     | create user       |
+| GET    | /api/user/:id | get user by id    |
+| PUT    | /api/user/:id | update user by id |
+| DELETE | /api/user/:id | delete user by id |
+| GET    | /api/users    | get all users     |
 
 #### Room API
 
@@ -70,18 +80,29 @@
 
 #### Room Events
 
-| Events       |
-| ------------ |
-| room:created |
-| room:deleted |
-| room:joined  |
-| room:left    |
+| Events         | Description                                                                 |
+| -------------- | --------------------------------------------------------------------------- |
+| chat:created   | New chat is created - Add chat into sidebar and into DB                     |
+| chat:deleted   | Chat was deleted - Remove chat from sidebar and from DB                     |
+| chat:joined    | Chat joined - Add user to socket room                                       |
+| chat:left      | Chat left - Remove user from socket room                                    |
+| room:created   | New room was created - Add room into sidebar and into DB                    |
+| room:deleted   | Room was deleted - Remove room from sidebar and from DB                     |
+| room:joined    | Room joined - Add user to socket room                                       |
+| room:left      | Room left - Remove user from socket room                                    |
+| message        | New message received - Add it into messages array                           |
+| message:edited | Message was edited - Update the message by id                               |
+| user:typing    | User is typing - Show Typing component if user is in same chat as the typer |
 
 #### Room or Chat?
 
-isRoom: boolean;
-
 ### Todos/Questions
+
+- FIRST LOAD ALL NECESSARY APIS AND THEN SHOW COMPONENTS
+- Use Redux
+- Show unread messages
+- Add notifications
+- Some context menus e.g. on channel, on message
 - Show last message in sidebar
 - Sort sidebar by last messages
 - Exclude own user in UserSearch

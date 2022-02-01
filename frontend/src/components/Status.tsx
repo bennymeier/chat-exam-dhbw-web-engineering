@@ -24,13 +24,13 @@ const StatusComponent: React.FC<StatusProps> = (props) => {
   };
   const fetchStatus = useCallback(async () => {
     const res = await UserApi.getStatus(currentUser._id);
-    console.log('Ref exists: ', mountedRef.current);
+    // console.log('Ref exists: ', mountedRef.current);
     if (!mountedRef.current) return null;
     setStatus(getStatus(res.data.status));
   }, [mountedRef, currentUser.status]);
 
   useEffect(() => {
-    console.log('MOUNT');
+    // console.log('MOUNT');
     mountedRef.current = true;
     socket.on(
       'status:change',
@@ -43,7 +43,7 @@ const StatusComponent: React.FC<StatusProps> = (props) => {
     );
     fetchStatus();
     return () => {
-      console.log('UNMOUNT');
+      // console.log('UNMOUNT');
       socket.off('status:change');
       mountedRef.current = false;
     };

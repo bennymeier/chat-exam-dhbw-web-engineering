@@ -1,6 +1,6 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { ChannelType, Chat, Room, User } from '../types';
 import { useAuth } from './AuthProvider';
 import RoomApi from '../api/room.api';
@@ -10,22 +10,20 @@ import ChatComponent from './Chat';
 import RoomComponent from './Room';
 import SmallSidebar from './SmallSidebar';
 
-const ConversationList = () => {
+const ChannelList = () => {
   const socket = useSocket();
+  const params = useLocation();
   const { id: conversationId } = useParams();
   const currentUser = useAuth().user as User;
   const [isLoading, setIsLoading] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [activeMenu, setActiveMenu] = useState<ChannelType>(
-    currentUser.lastChannelType
-  );
-  const handleSidebarClick = (activeMenu: ChannelType) => {
-    setActiveMenu(activeMenu);
-  };
+  const [activeMenu, setActiveMenu] = useState(currentUser.lastChannelType);
 
   useEffect(() => {
+    // console.log("SOCKET/CHAT USEEFFECT!");
     socket.on('chat:create', (chat: Chat) => {
+      console.log('Chat created!');
       setChats((prevChats) => [chat, ...prevChats]);
     });
     return () => {
@@ -34,8 +32,13 @@ const ConversationList = () => {
     };
   }, [socket, chats]);
 
+  const handleClick = (id: ChannelType) => {
+    setActiveMenu(id);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
+      // console.log('FETCH ROOMS ');
       setIsLoading(true);
       try {
         const allRooms = await RoomApi.getCurrentUserRooms(currentUser._id);
@@ -82,7 +85,7 @@ const ConversationList = () => {
         },
       }}
     >
-      <SmallSidebar onClick={handleSidebarClick} activeMenu={activeMenu} />
+      <SmallSidebar activeMenu={activeMenu} onClick={handleClick} />
       <Box width="calc(100% - 4rem)" bgColor="gray.300">
         {activeMenu === 'room' &&
           rooms.map((room) => (
@@ -109,4 +112,4 @@ const ConversationList = () => {
   );
 };
 
-export default ConversationList;
+export default ChannelList;

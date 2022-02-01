@@ -21,25 +21,26 @@ import CreateChat from './CreateChat';
 import CreateRoom from './CreateRoom';
 import { useAuth } from './AuthProvider';
 
-interface ConversationSuggestionsProps {
+interface ChannelSuggestionProps {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
 }
-const ConversationSuggestions: React.FC<ConversationSuggestionsProps> = (
-  props
-) => {
+const ChannelSuggestions: React.FC<ChannelSuggestionProps> = (props) => {
   const currentUser = useAuth().user as User;
   const { isOpen, onClose } = props;
   const [rooms, setRooms] = useState<Room[]>([]);
   const handleJoinRoom = async (room: Room) => {
     await RoomApi.joinRoom(room._id, currentUser._id);
-    await UserApi.update({ lastChannelType: 'room' }, currentUser._id);
+    await UserApi.update(
+      { lastChannelType: 'room', lastChannel: room._id },
+      currentUser._id
+    );
   };
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await RoomApi.getAll(undefined, true, currentUser._id);
+        const res = await RoomApi.getAll('0', true, currentUser._id);
         setRooms(res.data);
       } catch (err) {
         console.warn(err);
@@ -61,7 +62,7 @@ const ConversationSuggestions: React.FC<ConversationSuggestionsProps> = (
             <Box margin="1em">
               <SimpleGrid minChildWidth="250px" spacing="15px">
                 {rooms.map((room) => {
-                  const { name, _id, participants } = room;
+                  const { name, _id, participants, creator } = room;
                   return (
                     <Flex
                       key={_id}
@@ -74,6 +75,12 @@ const ConversationSuggestions: React.FC<ConversationSuggestionsProps> = (
                     >
                       <Box>
                         <AvatarGroup size="md" max={2}>
+                          <Avatar
+                            key={creator._id}
+                            name={`${creator.firstname} ${creator.lastname}`}
+                            src={creator.avatar}
+                          />
+                          );
                           {participants.map((participant) => {
                             const { firstname, lastname, avatar, _id } =
                               participant;
@@ -112,4 +119,4 @@ const ConversationSuggestions: React.FC<ConversationSuggestionsProps> = (
   );
 };
 
-export default ConversationSuggestions;
+export default ChannelSuggestions;

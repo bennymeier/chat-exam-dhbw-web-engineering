@@ -57,10 +57,11 @@ const getRooms = async (req: Request, res: Response) => {
   try {
     // Show all rooms where userId is not in
     if (filterMe === 'true' && userId) {
-      const rooms = await Room.find({})
+      const rooms = await Room.find({ creator: { $ne: [userId] } })
         .where('participants')
         .nin([userId])
         .populate('participants')
+        .populate('creator')
         .limit(limit)
         .lean();
 
@@ -71,6 +72,7 @@ const getRooms = async (req: Request, res: Response) => {
         .where('participants')
         .in([userId])
         .populate('participants')
+        .populate('creator')
         .limit(limit)
         .lean();
 
@@ -79,6 +81,7 @@ const getRooms = async (req: Request, res: Response) => {
       // Show all rooms
       const rooms = await Room.find({})
         .populate('participants')
+        .populate('creator')
         .limit(limit)
         .lean();
 

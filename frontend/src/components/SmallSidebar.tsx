@@ -23,16 +23,14 @@ const MENUS: SidebarMenu[] = [
 ];
 
 interface SmallSidebarProps {
-  onClick: (name: ChannelType) => void;
+  onClick: (id: ChannelType) => void;
   activeMenu: ChannelType;
 }
 const SmallSidebar: React.FC<SmallSidebarProps> = (props) => {
-  const { onClick, activeMenu } = props;
-  const handleClick = async (id: ChannelType, name: string) => {
-    onClick(id);
-  };
+  const { activeMenu, onClick } = props;
+
   return (
-    <Flex flexDirection="column" gap="1em" bgColor="gray.500" paddingY="1em">
+    <Flex flexDirection="column" bgColor="gray.500" paddingY="1em">
       {MENUS.map((menu) => {
         const { id, name, icon } = menu;
         const menuIsActive = activeMenu === id;
@@ -41,7 +39,7 @@ const SmallSidebar: React.FC<SmallSidebarProps> = (props) => {
             key={id}
             backgroundColor={menuIsActive ? 'gray.600' : ''}
             _hover={{ backgroundColor: 'gray.400' }}
-            onClick={() => handleClick(id, name)}
+            onClick={() => onClick(id)}
           >
             <Box paddingX="4" paddingY="2" textAlign="center">
               <IconButton

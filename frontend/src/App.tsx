@@ -45,6 +45,11 @@ const App = () => {
     }
   };
   useEffect(() => {
+    console.log(
+      'Last channel: ',
+      currentUser.lastChannelType + ' : ',
+      currentUser.lastChannel
+    );
     if (urlChannelId) {
       console.log('%cOpen conversation over URL..', 'color:green;');
       fetchChannel(urlChannelId);

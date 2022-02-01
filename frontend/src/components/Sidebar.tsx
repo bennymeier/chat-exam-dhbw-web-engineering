@@ -43,8 +43,8 @@ import { useSocket } from './SocketProvider';
 import { allStatus, Room, Chat, Status, User } from '../types';
 import UserApi from '../api/user.api';
 import StatusComponent from './Status';
-import ConversationList from './ConversationList';
-import ConversationSuggestions from './ConversationSuggestions';
+import ChannelList from './ChannelList';
+import ChannelSuggestions from './ChannelSuggestions';
 
 interface SidebarProps {
   children: ReactNode;
@@ -108,7 +108,7 @@ const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
 
   return (
     <>
-      <ConversationSuggestions
+      <ChannelSuggestions
         isOpen={isOpen}
         onClose={onCloseSuggestionModal}
         onOpen={onOpen}
@@ -143,7 +143,7 @@ const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
             onClick={onClose}
           />
         </Flex>
-        <ConversationList />
+        <ChannelList />
       </Box>
     </>
   );

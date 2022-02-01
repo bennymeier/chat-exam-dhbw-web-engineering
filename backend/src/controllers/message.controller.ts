@@ -54,7 +54,7 @@ const getMessages = async (req: Request, res: Response) => {
 
 const getMessagesByRoomId = async (req: Request, res: Response) => {
   try {
-    const messages = await Message.find({ roomId: req.params.id })
+    const messages = await Message.find({ channel: req.params.id })
       .populate('sender')
       .lean();
     return res.status(200).json(messages);
