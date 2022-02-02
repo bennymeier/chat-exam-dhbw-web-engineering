@@ -8,31 +8,36 @@ import LoginPage from './components/LoginPage';
 import AuthProvider from './components/AuthProvider';
 import RequireAuth from './components/RequireAuth';
 import './index.css';
+import { Provider } from 'react-redux';
+import { configureStore } from './store';
 
 const PROTECTED_ROUTES = ['/chat', '/room', '/chat/:id', '/room/:id'];
+const store = configureStore();
 
 ReactDOM.render(
   <React.StrictMode>
-    <ChakraProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            {PROTECTED_ROUTES.map((route) => (
-              <Route
-                key={route}
-                path={route}
-                element={
-                  <RequireAuth>
-                    <App />
-                  </RequireAuth>
-                }
-              />
-            ))}
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </ChakraProvider>
+    <Provider store={store}>
+      <ChakraProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              {PROTECTED_ROUTES.map((route) => (
+                <Route
+                  key={route}
+                  path={route}
+                  element={
+                    <RequireAuth>
+                      <App />
+                    </RequireAuth>
+                  }
+                />
+              ))}
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </ChakraProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

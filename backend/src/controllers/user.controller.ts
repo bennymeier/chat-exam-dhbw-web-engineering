@@ -67,7 +67,6 @@ const searchUsers = async (req: Request, res: Response) => {
     })
       .limit(limit)
       .lean();
-    // const users = await User.find({ firstname: regex });
     return res.status(200).json(users);
   } catch (err) {
     console.error(err);

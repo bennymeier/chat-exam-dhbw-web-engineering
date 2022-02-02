@@ -93,6 +93,7 @@
 | message        | New message received - Add it into messages array                           |
 | message:edited | Message was edited - Update the message by id                               |
 | user:typing    | User is typing - Show Typing component if user is in same chat as the typer |
+| user:notyping  | User stopped typing - Remove user from typing component                     |
 
 #### Room or Chat?
 

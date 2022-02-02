@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import AsyncSelect from 'react-select/async';
-import { User } from '../types';
 import UserApi from '../api/user.api';
 import UserComponent from './User';
 import { Box, Text } from '@chakra-ui/react';
+import { User } from '../types';
 
 const NoOption = ({ inputValue }: { inputValue: string }) => {
   const message = !!inputValue
