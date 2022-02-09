@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
 import { useSocket } from './SocketProvider';
+import EmptyConversation from './EmptyConversation';
 
 interface ChatViewProps {
   currentChannel: Room | Chat;
@@ -101,6 +102,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
           }}
           ref={messagesContainer}
         >
+          {!messages.length && <EmptyConversation />}
           {messages.map((message) => (
             <MessageComponent
               onDelete={handleDeleteMessage}
