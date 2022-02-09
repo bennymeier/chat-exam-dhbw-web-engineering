@@ -44,8 +44,6 @@ const ChannelList = () => {
         setRooms(allRooms.data);
         const allChats = await ChatApi.getCurrentUserChats(currentUser._id);
         setChats(allChats.data);
-        console.log("rooms: ", allRooms.data);
-        console.log("chats: ", allChats.data);
         setIsLoading(false);
       } catch (err) {
         console.error(err);

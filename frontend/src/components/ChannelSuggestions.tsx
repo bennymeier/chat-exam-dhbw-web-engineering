@@ -20,6 +20,7 @@ import UserApi from '../api/user.api';
 import CreateChat from './CreateChat';
 import CreateRoom from './CreateRoom';
 import { useAuth } from './AuthProvider';
+import { useNavigate } from 'react-router-dom';
 
 interface ChannelSuggestionProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ interface ChannelSuggestionProps {
 const ChannelSuggestions: React.FC<ChannelSuggestionProps> = (props) => {
   const currentUser = useAuth().user as User;
   const { isOpen, onClose } = props;
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState<Room[]>([]);
   const handleJoinRoom = async (room: Room) => {
     await RoomApi.joinRoom(room._id, currentUser._id);
@@ -36,6 +38,8 @@ const ChannelSuggestions: React.FC<ChannelSuggestionProps> = (props) => {
       { lastChannelType: 'room', lastChannel: room._id },
       currentUser._id
     );
+    onClose();
+    navigate(`/room/${room._id}`);
   };
   useEffect(() => {
     const fetchRooms = async () => {

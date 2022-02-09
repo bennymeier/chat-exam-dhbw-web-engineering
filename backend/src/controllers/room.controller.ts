@@ -158,8 +158,11 @@ const searchRoom = async (req: Request, res: Response) => {
 };
 
 const getCurrentUserRooms = async (req: Request, res: Response) => {
+  const userId = req.params.id;
   try {
-    const rooms = await Room.find({ creator: req.params.id })
+    const rooms = await Room.find({
+      $or: [{ creator: userId }, { participants: { $in: [userId] } }],
+    })
       .populate('creator')
       .populate('participants')
       .lean();

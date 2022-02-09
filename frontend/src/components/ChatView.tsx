@@ -1,11 +1,10 @@
-import { Box, Flex, Divider } from '@chakra-ui/react';
+import { Box, Flex, Divider, useToast } from '@chakra-ui/react';
 import MessageBox from './MessageBox';
 import MessageComponent from './Message';
 import { Chat, Message, Room, User } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
-import UserApi from '../api/user.api';
 import { useSocket } from './SocketProvider';
 
 interface ChatViewProps {
@@ -16,6 +15,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   const { currentChannel, currentUser } = props;
   const [messages, setMessages] = useState<Message[]>([]);
   const { id: chatPartnerId } = useParams();
+  const toast = useToast();
   const socket = useSocket();
   const messagesContainer = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
@@ -28,6 +28,22 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
         messagesContainer.current.scrollTop =
           messagesContainer.current.scrollHeight;
       }
+    }
+  };
+  const handleDeleteMessage = async (message: Message) => {
+    try {
+      await MessageApi.delete(message._id);
+      const filterMessage = messages.filter((msg) => msg._id !== message._id);
+      setMessages(filterMessage);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Message couldn't be deleted.",
+        description: 'Please inform an administrator.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
   const handleNewMessage = (message: Message) => {
@@ -57,7 +73,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
 
   useEffect(() => {
     socket.on('message', (message: Message) => {
-      console.log("NEW MSG: ", message);
+      console.log('NEW MSG: ', message);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
     return () => {
@@ -87,6 +103,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
         >
           {messages.map((message) => (
             <MessageComponent
+              onDelete={handleDeleteMessage}
               key={message._id}
               message={message}
               currentUser={currentUser}

@@ -52,7 +52,7 @@ const ChatComponent: React.FC<ChatProps> = (props) => {
         <Heading size="xs" isTruncated width="95%">
           {user.firstname} {user.lastname}
         </Heading>
-        <Text fontSize="xs" isTruncated width="95%">
+        <Text fontSize="xs" isTruncated width="70%">
           {chat?.lastMessage?.content}
         </Text>
       </Flex>

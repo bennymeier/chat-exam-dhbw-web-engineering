@@ -1,13 +1,27 @@
-import { Avatar, Box, Flex, Text } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
+import {
+  Avatar,
+  Box,
+  Flex,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+  Tooltip,
+} from '@chakra-ui/react';
 import moment from 'moment';
 import { Message, User } from '../types';
+import { FaEllipsisH } from 'react-icons/fa';
 
 interface MessageProps {
   message: Message;
   currentUser: User;
+  onDelete: (message: Message) => void;
 }
 const MessageComponent: React.FC<MessageProps> = (props) => {
-  const { message, currentUser } = props;
+  const { message, currentUser, onDelete } = props;
   const { sender } = message;
   const getUser = () => {
     // sender as string
@@ -40,20 +54,45 @@ const MessageComponent: React.FC<MessageProps> = (props) => {
         </Box>
         <Box
           bgColor={isMine ? 'gray.300' : 'teal.200'}
-          p="1em"
+          paddingX="1em"
+          paddingY="0.5em"
           borderRadius="md"
           maxWidth="65%"
         >
-          <Flex gap="0.7em">
+          <Flex gap="0.7em" alignItems="center">
             <Text fontSize="xs" fontWeight="bold">
               {fullname}
             </Text>
-            <Text
-              fontSize="xs"
-              title={new Date(message.createdAt).toLocaleString()}
+            <Tooltip
+              label={`${new Date(message.createdAt).toLocaleString()}`}
+              aria-label={`Message written at ${new Date(
+                message.createdAt
+              ).toLocaleString()}`}
             >
-              {getDate()}
-            </Text>
+              <Text fontSize="xs">{getDate()}</Text>
+            </Tooltip>
+            {isMine && (
+              <Box marginLeft="auto">
+                <Menu>
+                  <MenuButton
+                    display="inline-flex"
+                    as={IconButton}
+                    aria-label="Options"
+                    icon={<FaEllipsisH />}
+                    variant="unstyled"
+                    size="xs"
+                  />
+                  <MenuList padding="unset" minWidth="unset">
+                    <MenuItem
+                      icon={<DeleteIcon />}
+                      onClick={() => onDelete(message)}
+                    >
+                      Delete Message
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Box>
+            )}
           </Flex>
           <Text fontSize="sm">{message.content}</Text>
         </Box>
