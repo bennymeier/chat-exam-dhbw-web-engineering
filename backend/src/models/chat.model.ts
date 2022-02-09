@@ -19,10 +19,6 @@ const ChatModel = new Schema<ChatSchema>(
     name: {
       type: String,
     },
-    lastMessage: {
-      type: Schema.Types.ObjectId,
-      ref: 'Message',
-    },
   },
   { timestamps: true }
 );

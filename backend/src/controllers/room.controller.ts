@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Room from '../models/room.model';
+import Message from '../models/message.model';
 
 const createRoom = async (req: Request, res: Response) => {
   try {
@@ -161,9 +162,15 @@ const getCurrentUserRooms = async (req: Request, res: Response) => {
     const rooms = await Room.find({ creator: req.params.id })
       .populate('creator')
       .populate('participants')
-      .populate('lastMessage')
       .lean();
-    return res.status(200).json(rooms);
+    const mergeData = rooms.map(async (room) => {
+      const lastMessage = await Message.findOne({ channel: room._id }).sort({
+        createdAt: -1,
+      });
+      return { ...room, lastMessage };
+    });
+    const roomsData = await Promise.all(mergeData);
+    return res.status(200).json(roomsData);
   } catch (err) {
     console.error(err);
     return res.status(404).json({ error: 'Rooms not found!' });

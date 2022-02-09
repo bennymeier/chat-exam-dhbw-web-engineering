@@ -1,6 +1,6 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ChannelType, Chat, Room, User } from '../types';
 import { useAuth } from './AuthProvider';
 import RoomApi from '../api/room.api';
@@ -12,7 +12,6 @@ import SmallSidebar from './SmallSidebar';
 
 const ChannelList = () => {
   const socket = useSocket();
-  const params = useLocation();
   const { id: conversationId } = useParams();
   const currentUser = useAuth().user as User;
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +44,8 @@ const ChannelList = () => {
         setRooms(allRooms.data);
         const allChats = await ChatApi.getCurrentUserChats(currentUser._id);
         setChats(allChats.data);
+        console.log("rooms: ", allRooms.data);
+        console.log("chats: ", allChats.data);
         setIsLoading(false);
       } catch (err) {
         console.error(err);

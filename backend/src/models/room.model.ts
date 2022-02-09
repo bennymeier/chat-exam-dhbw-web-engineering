@@ -22,10 +22,6 @@ const RoomModel = new Schema<RoomSchema>(
     description: {
       type: String,
     },
-    lastMessage: {
-      type: Schema.Types.ObjectId,
-      ref: 'Message',
-    },
   },
   { timestamps: true }
 );

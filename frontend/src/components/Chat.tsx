@@ -53,7 +53,7 @@ const ChatComponent: React.FC<ChatProps> = (props) => {
           {user.firstname} {user.lastname}
         </Heading>
         <Text fontSize="xs" isTruncated width="95%">
-          {user.mail}
+          {chat?.lastMessage?.content}
         </Text>
       </Flex>
     </Flex>

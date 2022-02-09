@@ -19,13 +19,11 @@ export interface ChatSchema extends Document {
   name?: string;
   partner: Types.ObjectId;
   creator: Types.ObjectId;
-  lastMessage: Types.ObjectId;
 }
 export interface Chat extends Document {
   name?: string;
   creator: User;
   partner: User;
-  lastMessage: Message;
 }
 export interface User extends Document {
   username: string;
@@ -56,12 +54,10 @@ export interface RoomSchema extends Document {
   description?: string;
   participants: Types.ObjectId[];
   creator: Types.ObjectId;
-  lastMessage: Types.ObjectId;
 }
 export interface Room extends Document {
   name: string;
   description?: string;
   participants: User[];
   creator: User;
-  lastMessage: Message;
 }

@@ -41,7 +41,7 @@ const RoomComponent: React.FC<UserProps> = (props) => {
           {name}
         </Heading>
         <Text fontSize="xs" isTruncated width="95%">
-          {description}
+          {room?.lastMessage?.content}
         </Text>
       </Flex>
     </Flex>

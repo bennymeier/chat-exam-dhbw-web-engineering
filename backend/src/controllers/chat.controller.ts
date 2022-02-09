@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Chat from '../models/chat.model';
+import Message from '../models/message.model';
 
 const createChat = async (req: Request, res: Response) => {
   try {
@@ -92,9 +93,15 @@ const getCurrentUserChats = async (req: Request, res: Response) => {
     })
       .populate('creator')
       .populate('partner')
-      .populate('lastMessage')
       .lean();
-    return res.status(200).json(chats);
+    const mergeData = chats.map(async (chat) => {
+      const lastMessage = await Message.findOne({ channel: chat._id }).sort({
+        createdAt: -1,
+      });
+      return { ...chat, lastMessage };
+    });
+    const chatsData = await Promise.all(mergeData);
+    return res.status(200).json(chatsData);
   } catch (err) {
     console.error(err);
     return res.status(404).json({ error: 'Chats not found!' });
