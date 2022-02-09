@@ -100,14 +100,11 @@
 ### Todos/Questions
 
 - FIRST LOAD ALL NECESSARY APIS AND THEN SHOW COMPONENTS
-- Use Redux
 - Show unread messages
 - Add notifications
 - Some context menus e.g. on channel, on message
-- Show last message in sidebar
 - Sort sidebar by last messages
 - Exclude own user in UserSearch
-- Multiple 1-1 chats currently possible - yes/no?
 
 1. User logs in from /
 2. Choosen user is now stored in localStorage
@@ -119,3 +116,7 @@
 6. lastChannelId and :id are not set
    - show EmptyRoom component
 7. get messages and reactions
+
+### Improvement for the future
+
+- Add Redux for global state management
