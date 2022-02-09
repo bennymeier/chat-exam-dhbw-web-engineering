@@ -76,6 +76,11 @@
 | DELETE  | /api/message/:id | delete message by id |
 | GET     | /api/messages    | get all messages     |
 
+### Important!
+
+Neither the backend nor the frontend is secured! The API-Calls are not safe because there is no real login!
+With a login the API would be saved by a JWT-Token send with every API-Request! So keep in mind that you can do anything with the API, e.g. you can delete every message also the messages sent by others, you can remove or add every user to a channel...
+
 ### Socket-Events
 
 #### Room Events
