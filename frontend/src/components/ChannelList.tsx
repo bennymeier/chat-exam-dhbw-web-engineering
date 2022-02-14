@@ -9,6 +9,7 @@ import { useSocket } from './SocketProvider';
 import ChatComponent from './Chat';
 import RoomComponent from './Room';
 import SmallSidebar from './SmallSidebar';
+import { CHAT_CREATE } from '../socket.events';
 
 const ChannelList = () => {
   const socket = useSocket();
@@ -20,14 +21,11 @@ const ChannelList = () => {
   const [activeMenu, setActiveMenu] = useState(currentUser.lastChannelType);
 
   useEffect(() => {
-    // console.log("SOCKET/CHAT USEEFFECT!");
-    socket.on('chat:create', (chat: Chat) => {
-      console.log('Chat created!');
+    socket.on(CHAT_CREATE, (chat: Chat) => {
       setChats((prevChats) => [chat, ...prevChats]);
     });
     return () => {
-      socket.off('status:change');
-      socket.off('chat:create');
+      socket.off(CHAT_CREATE);
     };
   }, [socket, chats]);
 
@@ -37,7 +35,6 @@ const ChannelList = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // console.log('FETCH ROOMS ');
       setIsLoading(true);
       try {
         const allRooms = await RoomApi.getCurrentUserRooms(currentUser._id);

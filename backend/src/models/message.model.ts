@@ -12,7 +12,7 @@ const MessageModel = new Schema<MessageSchema>(
     },
     channel: {
       type: Schema.Types.ObjectId,
-      ref: 'Room',
+      ref: 'Room', // FIXME: And whats with Chat??
       required: [true, 'Channel ID is missing.'],
       immutable: true,
     },

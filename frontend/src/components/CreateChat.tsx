@@ -26,6 +26,7 @@ import { CreateChat, User } from '../types';
 import { useSocket } from './SocketProvider';
 import UserSearch from './UserSearch';
 import { useNavigate } from 'react-router-dom';
+import { CHAT_CREATE } from '../socket.events';
 
 const CreateChatComponent = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -55,7 +56,7 @@ const CreateChatComponent = () => {
         { lastChannel: res.data.id, lastChannelType: 'chat' },
         currentUser._id
       );
-      socket.emit('chat:create', res.data);
+      socket.emit(CHAT_CREATE, res.data);
       navigate(`/chat/${res.data._id}`, { replace: true });
       toast({
         title: 'Chat created.',

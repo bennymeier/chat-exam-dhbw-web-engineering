@@ -7,6 +7,21 @@ import UserRouter from './routers/user.router';
 import MessageRouter from './routers/message.router';
 import { establishSocketConnection } from './socket.connection';
 import { Room, Message, User, Chat, Channel } from './types';
+import {
+  AVATAR_CHANGE,
+  CHAT_CREATE,
+  CHAT_DELETE,
+  CHAT_JOIN,
+  CHAT_LEAVE,
+  MESSAGE_DELETE,
+  MESSAGE_RECEIVE,
+  ROOM_CREATE,
+  ROOM_DELETE,
+  ROOM_JOIN,
+  ROOM_LEAVE,
+  STATUS_CHANGE,
+  USER_TYPING,
+} from './socket.events';
 
 const apiPort = 3001 || process.env.PORT;
 
@@ -35,63 +50,83 @@ io.on('connection', (socket) => {
   });
 
   // Room created
-  socket.on('room:created', (room: Room) => {
-    socket.broadcast.emit('room:created', room);
+  socket.on(ROOM_CREATE, (room: Room) => {
+    socket.broadcast.emit(ROOM_CREATE, room);
   });
 
   // Room deleted
-  socket.on('room:deleted', (room: Room) => {
-    socket.broadcast.emit('room:deleted', room);
+  socket.on(ROOM_DELETE, (room: Room) => {
+    socket.broadcast.emit(ROOM_DELETE, room);
   });
 
   // Chat created
-  socket.on('chat:create', (chat: Chat) => {
+  socket.on(CHAT_CREATE, (chat: Chat) => {
     console.log('Chat ', chat);
     console.log(`User A ${currentUser.firstname}`);
     console.log(`User B Partner ${chat.partner.firstname}`);
     console.log(`User C Creator ${chat.creator.firstname}`);
-    socket.broadcast.to(chat.partner._id).emit('chat:create', chat);
+    socket.broadcast.to(chat.partner._id).emit(CHAT_CREATE, chat);
   });
 
   // Chat deleted
-  socket.on('chat:delete', (chat: Chat) => {
-    socket.broadcast.emit('chat:deleted', chat);
+  socket.on(CHAT_DELETE, (chat: Chat) => {
+    socket.broadcast.emit(CHAT_DELETE, chat);
   });
 
   // User joined room
-  socket.on('room:join', (room: Room) => {
+  socket.on(ROOM_JOIN, (room: Room) => {
+    console.log(`Join room with ID ${room._id}.`);
     socket.join(room._id);
   });
 
   // User left room
-  socket.on('room:leave', (room: Room) => {
+  socket.on(ROOM_LEAVE, (room: Room) => {
+    console.log('Leave room.');
     socket.leave(room._id);
   });
 
+  // User joined chat
+  socket.on(CHAT_JOIN, (chat: Chat) => {
+    console.log(`Join chat with ID ${chat._id}.`);
+    socket.join(chat._id);
+  });
+
+  // User left chat
+  socket.on(CHAT_LEAVE, (chat: Chat) => {
+    console.log('Leave chat.');
+    socket.leave(chat._id);
+  });
+
   // User sent message
-  socket.on('message', ({ message }: { message: Message }) => {
+  socket.on(MESSAGE_RECEIVE, ({ message }: { message: Message }) => {
     console.log(message);
-    console.log(connectedUsers)
-    socket.to(message.channel._id).emit('message', message);
+    console.log(`Message received to channel with ID ${message.channel._id}.`);
+    socket.to(message.channel._id).emit(MESSAGE_RECEIVE, message);
+  });
+
+  // User deleted message
+  socket.on(MESSAGE_DELETE, ({ message }: { message: any }) => {
+    console.log(`Message with ID ${message._id} deleted.`);
+    socket.to(message.channel._id).emit(MESSAGE_DELETE, message);
   });
 
   // Online Status changed
   socket.on(
-    'status:change',
+    STATUS_CHANGE,
     ({ user, statusId }: { user: User; statusId: string }) => {
-      console.log(`Change status of ${user.firstname} to ${statusId}`);
-      socket.broadcast.emit('status:change', { user, statusId });
+      console.log(`Change status of ${user.firstname} to ${statusId}.`);
+      socket.broadcast.emit(STATUS_CHANGE, { user, statusId });
     }
   );
 
   // Avatar changed
-  socket.on('avatar:change', () => {
+  socket.on(AVATAR_CHANGE, () => {
     console.log('Someone changed his avatar.');
   });
 
   // User is typing
   socket.on(
-    'user:typing',
+    USER_TYPING,
     ({
       currentUser,
       currentChannel,
@@ -99,7 +134,7 @@ io.on('connection', (socket) => {
       currentUser: User;
       currentChannel: Channel;
     }) => {
-      socket.to(currentChannel._id).emit('user:typing', [currentUser]);
+      socket.to(currentChannel._id).emit(USER_TYPING, [currentUser]);
     }
   );
 });

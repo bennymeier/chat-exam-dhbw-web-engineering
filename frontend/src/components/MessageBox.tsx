@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Box, Flex, IconButton, Textarea } from '@chakra-ui/react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { Chat, CreateMessage, Message, Room, User } from '../types';
@@ -6,6 +6,7 @@ import MessageApi from '../api/message.api';
 import { useSocket } from './SocketProvider';
 import TypingUsers from './TypingUsers';
 import useIsTyping from './TypingHook';
+import { USER_TYPING } from '../socket.events';
 
 interface MessageBoxProps {
   currentChannel: Room | Chat;
@@ -25,9 +26,20 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
 
   useEffect(() => {
     if (isTyping) {
-      socket.emit('user:typing', { currentChannel, currentUser });
+      socket.emit(USER_TYPING, { currentChannel, currentUser });
     }
-  }, [isTyping]);
+    return () => {
+      socket.off(USER_TYPING);
+    };
+  }, [socket, isTyping]);
+
+  const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // on enter send message, if shit and enter is pressed don't send message
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  };
 
   const sendMessage = async () => {
     const data: CreateMessage = {
@@ -58,6 +70,7 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
           onChange={handleChange}
           placeholder="Enter a new message"
           size="sm"
+          onKeyDown={handleKeydown}
         />
         <IconButton
           isLoading={isLoading}

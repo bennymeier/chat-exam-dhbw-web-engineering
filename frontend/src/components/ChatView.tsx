@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import MessageApi from '../api/message.api';
 import { useSocket } from './SocketProvider';
 import EmptyConversation from './EmptyConversation';
+import { MESSAGE_DELETE, MESSAGE_RECEIVE } from '../socket.events';
 
 interface ChatViewProps {
   currentChannel: Room | Chat;
@@ -36,6 +37,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
       await MessageApi.delete(message._id);
       const filterMessage = messages.filter((msg) => msg._id !== message._id);
       setMessages(filterMessage);
+      socket.emit(MESSAGE_DELETE, { message });
     } catch (err) {
       console.error(err);
       toast({
@@ -49,7 +51,7 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   };
   const handleNewMessage = (message: Message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
-    socket.emit('message', {
+    socket.emit(MESSAGE_RECEIVE, {
       message,
     });
   };
@@ -73,14 +75,18 @@ const ChatView: React.FC<ChatViewProps> = (props) => {
   }, [messages]);
 
   useEffect(() => {
-    socket.on('message', (message: Message) => {
-      console.log('NEW MSG: ', message);
+    socket.on(MESSAGE_RECEIVE, (message: Message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
+    socket.on(MESSAGE_DELETE, (message: Message) => {
+      const filterMessage = messages.filter((msg) => msg._id !== message._id);
+      setMessages(filterMessage);
+    });
     return () => {
-      socket.off('message');
+      socket.off(MESSAGE_RECEIVE);
+      socket.off(MESSAGE_DELETE);
     };
-  }, [socket]);
+  }, [socket, messages]);
 
   return (
     <>

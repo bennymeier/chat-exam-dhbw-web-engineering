@@ -1,5 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { USER_TYPING } from '../socket.events';
 import { User } from '../types';
 import { useSocket } from './SocketProvider';
 
@@ -11,13 +12,13 @@ const TypingUsers: React.FC<TypingUsersProps> = ({ isTyping }) => {
   const socket = useSocket();
 
   useEffect(() => {
-    socket.on('user:typing', (typingUsers: User[]) => {
+    socket.on(USER_TYPING, (typingUsers: User[]) => {
       setTypingUsers(typingUsers);
       // TODO: Does also reset if the user is still typing
       setTimeout(() => setTypingUsers([]), 1000);
     });
     return () => {
-      socket.off('user:typing');
+      socket.off(USER_TYPING);
     };
   }, [socket]);
 

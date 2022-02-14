@@ -11,6 +11,7 @@ import {
   DrawerContent,
   Text,
   useDisclosure,
+  useToast,
   BoxProps,
   FlexProps,
   Menu,
@@ -40,11 +41,17 @@ import authProvider from '../auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { useSocket } from './SocketProvider';
-import { allStatus, Room, Chat, Status, User } from '../types';
+import { allStatus, Room, Chat, User } from '../types';
 import UserApi from '../api/user.api';
 import StatusComponent from './Status';
 import ChannelList from './ChannelList';
 import ChannelSuggestions from './ChannelSuggestions';
+import {
+  CHAT_JOIN,
+  ROOM_JOIN,
+  ROOM_LEAVE,
+  STATUS_CHANGE,
+} from '../socket.events';
 
 interface SidebarProps {
   children: ReactNode;
@@ -54,6 +61,7 @@ interface SidebarProps {
 const Sidebar = ({ children, ...props }: SidebarProps) => {
   const { currentChannel } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
   const socket = useSocket();
 
   useEffect(() => {
@@ -62,16 +70,32 @@ const Sidebar = ({ children, ...props }: SidebarProps) => {
     });
     socket.on('disconnect', () => {
       console.log('%cSocket disconnected.', 'color:red;');
-    });
-    socket.on('reconnect', () => {
-      console.log('%cSocket reconnected.', 'color:green;');
+      toast({
+        title: 'Websocket disconnected.',
+        description:
+          'The websocket closed the connection. Please keep in mind that some functionalities are not working right now.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     });
     return () => {
       socket.disconnect();
-      socket.off('room:join');
-      socket.off('room:leave');
     };
   }, [socket]);
+
+  useEffect(() => {
+    console.log(currentChannel);
+    if ((currentChannel as Room)?.participants) {
+      socket.emit(ROOM_JOIN, currentChannel);
+    } else {
+      socket.emit(CHAT_JOIN, currentChannel);
+    }
+    return () => {
+      socket.off(ROOM_JOIN);
+      socket.off(ROOM_LEAVE);
+    };
+  }, [currentChannel]);
 
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
@@ -130,7 +154,7 @@ const SidebarContent = ({ onClose, ...props }: SidebarContentProps) => {
             fontWeight="bold"
             userSelect="none"
           >
-            Slack Chat 1
+            DHBW Lörrach Chat
           </Text>
           <IconButton
             icon={<FiEdit />}
@@ -168,7 +192,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
     const userObj = { ...user, status: statusId };
     try {
       await UserApi.update(userObj, user._id);
-      socket.emit('status:change', { user, statusId });
+      socket.emit(STATUS_CHANGE, { user, statusId });
       setUser(userObj);
     } catch (err) {
       console.warn(err);
@@ -214,7 +238,7 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
           fontWeight="bold"
           userSelect="none"
         >
-          Slack Chat 2
+          DHBW Lörrach Chat
         </Text>
 
         <HStack spacing={{ base: '0', md: '6' }}>

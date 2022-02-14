@@ -25,6 +25,7 @@ import UserApi from '../api/user.api';
 import { CreateRoom, UpdateUser, User } from '../types';
 import { useSocket } from './SocketProvider';
 import { useNavigate } from 'react-router-dom';
+import { ROOM_CREATE } from '../socket.events';
 
 const CreateRoomComponent = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -51,7 +52,7 @@ const CreateRoomComponent = () => {
     };
     try {
       const res = await RoomApi.create(roomData);
-      socket.emit('room:created', res.data);
+      socket.emit(ROOM_CREATE, res.data);
       const userData: UpdateUser = {
         lastChannel: res.data._id,
         lastChannelType: 'room',

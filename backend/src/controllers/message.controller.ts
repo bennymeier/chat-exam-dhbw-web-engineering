@@ -5,7 +5,10 @@ const createMessage = async (req: Request, res: Response) => {
   try {
     const message = new Message(req.body);
     const data = await message.save();
-    return res.status(201).json(data);
+    const newMessage = await Message.findById(data._id)
+      .populate('sender')
+      .populate('channel');
+    return res.status(201).json(newMessage);
   } catch (err) {
     console.error(err);
     return res.status(400).json({ error: "Message couldn't be created!" });
