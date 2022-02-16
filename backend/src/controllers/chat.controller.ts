@@ -108,29 +108,6 @@ const getCurrentUserChats = async (req: Request, res: Response) => {
   }
 };
 
-// const searchChat = async (req: Request, res: Response) => {
-//   const q = req.query;
-//   const currentUserId = q.currentUserId;
-//   const searchValue = q.searchValue;
-//   const limit = parseInt(q.limit as string) || 0;
-//   if (!searchValue) {
-//     return res.status(401).json({ error: 'No search value given!' });
-//   }
-//   const regex = new RegExp(searchValue as string, 'i');
-//   const chats = await Chat.find({ _id: { $ne: currentUserId } });
-//   const users = Chat.find({
-//     $or: [{ firstname: regex }, { lastname: regex }],
-//   })
-//     .limit(limit)
-//     .lean()
-//     .exec((err, docs) => {
-//       if (err) {
-//         return res.status(404).json(err);
-//       }
-//       return res.status(200).json(chats);
-//     });
-// };
-
 export default {
   createChat,
   getChat,

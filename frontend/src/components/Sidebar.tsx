@@ -11,7 +11,6 @@ import {
   DrawerContent,
   Text,
   useDisclosure,
-  useToast,
   BoxProps,
   FlexProps,
   Menu,
@@ -61,7 +60,6 @@ interface SidebarProps {
 const Sidebar = ({ children, ...props }: SidebarProps) => {
   const { currentChannel } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
   const socket = useSocket();
 
   useEffect(() => {

@@ -2,11 +2,6 @@ import { CreateRoom, UpdateRoom } from '../types';
 import { API } from './api';
 
 class RoomApi {
-  search(currentUserId: string, searchValue: string, limit = '0') {
-    return API.get(
-      `/rooms/search/?currentUserId=${currentUserId}&searchValue=${searchValue}&limit=${limit}`
-    );
-  }
   getAll(limit = '0', filterMe?: boolean, userId?: string) {
     return API.get(
       `/rooms/search?limit=${limit}&filterme=${filterMe}&userid=${userId}`

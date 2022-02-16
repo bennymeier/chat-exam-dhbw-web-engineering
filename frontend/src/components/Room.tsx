@@ -11,8 +11,7 @@ interface UserProps {
 const RoomComponent: React.FC<UserProps> = (props) => {
   const navigate = useNavigate();
   const { room, activeId, currentUser } = props;
-  console.log(room);
-  const { name, description } = room;
+  const { name } = room;
   const isCurrentRoom = room._id === activeId;
   const handleClick = async () => {
     await UserApi.update(

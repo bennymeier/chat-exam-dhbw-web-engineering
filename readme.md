@@ -10,6 +10,37 @@
 - Jonas Kaiser
 - Benjamin Meier
 
+### Assignment/Todos for exam
+
+- Aufgabe:
+
+  - [x] Implementierung einer Client-Server Chat Anwendung (Vergleichbar mit slack)
+  - [x] Der Client soll als Webanwendung ausgeführt werden.
+  - [x] Die Backendtechnologie und Sprache ist frei wählbar.
+  - [x] Es soll eine einfache Chat-Applikation implementiert werden in der es möglich sein soll mit mehreren Clients auf ein gemeinsames Backend zuzugreifen wobei die Eingaben der verschiedenen Teilnehmer auf den anderen Clients synchronisiert werden.
+  - [ ] Die eingesetzten Technologien zur Übertragung und Darstellung sollen dokumentiert und die Technologieentscheidungen erörtert werden (in der Präsentation).
+
+- Client:
+
+  - [ ] Der Client soll über zwei Bereiche verfügen, einer Anzeige des Chats in der die eigenen und die Nachrichten der anderen verbundenen Teilnehmer angezeigt werden und einer Texteingabe mit der Nachrichten an alle Teilnehmer geschickt werden können.
+  - [ ] Jeder Client soll eineindeutig über einen Namen identifizierbar sein
+
+    - Eindeutigkeit bestimmt über: Mail + ID
+
+- Backend:
+
+  - [x] Das Backend soll die einzelnen Verbundenen Clients verwalten und die Nachrichten die von den einzelnen Clients gesendet werden an die anderen Verbundenen Clients verteilen.
+  - [x] In der Basisaufgabe braucht es keine Persistenz oder Userverwaltung
+
+- Extra:
+
+  - [x] Anzeige aller Verbundenen Clients/Nutzer
+    - Umgesetzt durch die Anzeige des Online Status in der Userliste
+  - [x] Persistenz des Chatverlaufes: Wenn sich ein neuer Client verbindet wird der bisherige Chatverlauf übertragen
+    - Alles wird in der MongoDB Cloud gespeichert
+  - User können nicht nur plain text sondern auch HTML/Markdown/BBCode text übertragen
+  - Frei wählbar
+
 ### Technologies used:
 
 All frameworks, languages or libraries are used because they are:
@@ -87,45 +118,72 @@ All frameworks, languages or libraries are used because they are:
 
 ### Collections
 
-| Collection | Description      |
-| ---------- | ---------------- |
-| users      | Stores users     |
-| rooms      | Stores rooms     |
-| chats      | Stores chats     |
-| messages   | Stores messages  |
-| reactions  | Stores reactions |
+| Collection | Description     |
+| ---------- | --------------- |
+| users      | Stores users    |
+| rooms      | Stores rooms    |
+| chats      | Stores chats    |
+| messages   | Stores messages |
+
+### Difference betweens rooms and chats
+
+| Chat    | Room         |
+| ------- | ------------ |
+| creator | creator      |
+| partner | participants |
+| name    | name         |
+|         | description  |
+
+**Note:** The aim is to combine chats and roms. It only differs by partner (id as string) <> participants (array of ids) and the description which is only in rooms.
 
 ### REST-API
 
 #### User API
 
-| Method | URL           | Action            |
-| ------ | ------------- | ----------------- |
-| POST   | /api/user     | create user       |
-| GET    | /api/user/:id | get user by id    |
-| PUT    | /api/user/:id | update user by id |
-| DELETE | /api/user/:id | delete user by id |
-| GET    | /api/users    | get all users     |
+| Method | URL                  | Action                                      |
+| ------ | -------------------- | ------------------------------------------- |
+| POST   | /api/user            | create user                                 |
+| GET    | /api/user/:id        | get user by id                              |
+| PUT    | /api/user/:id        | update user by id                           |
+| DELETE | /api/user/:id        | delete user by id                           |
+| GET    | /api/users           | get all users                               |
+| GET    | /api/users/:query    | search users by their firstname or lastname |
+| GET    | /api/user/status/:id | get status of user (online, offline, ...)   |
 
 #### Room API
 
-| Methods | URLs          | Actions           |
-| ------- | ------------- | ----------------- |
-| POST    | /api/room     | create room       |
-| GET     | /api/room/:id | get room by id    |
-| PUT     | /api/room/:id | update room by id |
-| DELETE  | /api/room/:id | delete room by id |
-| GET     | /api/rooms    | get all rooms     |
+| Methods | URLs                | Actions                                               |
+| ------- | ------------------- | ----------------------------------------------------- |
+| POST    | /api/room           | create room                                           |
+| GET     | /api/room/:id       | get room by id                                        |
+| PUT     | /api/room/:id       | update room by id                                     |
+| DELETE  | /api/room/:id       | delete room by id                                     |
+| GET     | /api/rooms          | get all rooms                                         |
+| PUT     | /api/room/join/:id  | join room (adds user into participants array)         |
+| PUT     | /api/room/leave/:id | leave room (removes user from participants array)     |
+| GET     | /api/rooms/user/:id | get rooms where user is either creator or participant |
+
+#### Chat API
+
+| Methods | URLs                | Actions                                           |
+| ------- | ------------------- | ------------------------------------------------- |
+| POST    | /api/chat           | create chat                                       |
+| GET     | /api/chat/:id       | get chat by id                                    |
+| PUT     | /api/chat/:id       | update chat by id                                 |
+| DELETE  | /api/chat/:id       | delete chat by id                                 |
+| GET     | /api/chats          | get all chats                                     |
+| GET     | /api/chats/user/:id | get chats where user is either creator or partner |
 
 #### Message API
 
-| Methods | URLs             | Actions              |
-| ------- | ---------------- | -------------------- |
-| POST    | /api/message     | create message       |
-| GET     | /api/message/:id | get message by id    |
-| PUT     | /api/message/:id | update message by id |
-| DELETE  | /api/message/:id | delete message by id |
-| GET     | /api/messages    | get all messages     |
+| Methods | URLs              | Actions                     |
+| ------- | ----------------- | --------------------------- |
+| POST    | /api/message      | create message              |
+| GET     | /api/message/:id  | get message by id           |
+| PUT     | /api/message/:id  | update message by id        |
+| DELETE  | /api/message/:id  | delete message by id        |
+| GET     | /api/messages     | get all messages            |
+| GET     | /api/messages/:id | get all messages by room id |
 
 ### Important!
 
