@@ -165,6 +165,5 @@ export default {
   getRooms,
   joinRoom,
   leaveRoom,
-  searchRoom,
   getCurrentUserRooms,
 };
