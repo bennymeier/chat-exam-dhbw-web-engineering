@@ -25,7 +25,7 @@
   - [ ] Der Client soll über zwei Bereiche verfügen, einer Anzeige des Chats in der die eigenen und die Nachrichten der anderen verbundenen Teilnehmer angezeigt werden und einer Texteingabe mit der Nachrichten an alle Teilnehmer geschickt werden können.
   - [ ] Jeder Client soll eineindeutig über einen Namen identifizierbar sein
 
-    - Eindeutigkeit bestimmt über: Mail + ID
+    - Eindeutigkeit bestimmt über: Mail + ID + Username
 
 - Backend:
 
