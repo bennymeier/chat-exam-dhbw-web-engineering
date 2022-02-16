@@ -17,7 +17,7 @@ import {
   useToast,
   Stack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FaUserFriends } from 'react-icons/fa';
 import { useAuth } from './AuthProvider';
 import RoomApi from '../api/room.api';
@@ -27,7 +27,11 @@ import { useSocket } from './SocketProvider';
 import { useNavigate } from 'react-router-dom';
 import { ROOM_CREATE } from '../socket.events';
 
-const CreateRoomComponent = () => {
+interface CreateRoomComponentProps {
+  handleClose?: () => void;
+}
+const CreateRoomComponent: React.FC<CreateRoomComponentProps> = (props) => {
+  const { handleClose } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const socket = useSocket();
@@ -67,6 +71,9 @@ const CreateRoomComponent = () => {
         isClosable: true,
       });
       onClose();
+      if (handleClose) {
+        handleClose();
+      }
     } catch (err) {
       toast({
         title: "Room couldn't be created.",

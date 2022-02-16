@@ -114,8 +114,8 @@ const ChannelSuggestions: React.FC<ChannelSuggestionProps> = (props) => {
               </SimpleGrid>
             </Box>
 
-            <CreateChat />
-            <CreateRoom />
+            <CreateChat handleClose={() => onClose()} />
+            <CreateRoom handleClose={() => onClose()} />
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -70,14 +70,6 @@ const Sidebar = ({ children, ...props }: SidebarProps) => {
     });
     socket.on('disconnect', () => {
       console.log('%cSocket disconnected.', 'color:red;');
-      toast({
-        title: 'Websocket disconnected.',
-        description:
-          'The websocket closed the connection. Please keep in mind that some functionalities are not working right now.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
     });
     return () => {
       socket.disconnect();

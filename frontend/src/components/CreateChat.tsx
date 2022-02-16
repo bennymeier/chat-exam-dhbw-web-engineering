@@ -28,7 +28,11 @@ import UserSearch from './UserSearch';
 import { useNavigate } from 'react-router-dom';
 import { CHAT_CREATE } from '../socket.events';
 
-const CreateChatComponent = () => {
+interface CreateChatComponentProps {
+  handleClose?: () => void;
+}
+const CreateChatComponent: React.FC<CreateChatComponentProps> = (props) => {
+  const { handleClose } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const navigate = useNavigate();
@@ -66,6 +70,9 @@ const CreateChatComponent = () => {
         isClosable: true,
       });
       onClose();
+      if (handleClose) {
+        handleClose();
+      }
     } catch (err) {
       toast({
         title: "Chat couldn't be created.",

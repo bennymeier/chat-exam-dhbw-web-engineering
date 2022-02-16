@@ -1,4 +1,4 @@
-import { Flex, Heading, Text } from '@chakra-ui/react';
+import { Avatar, AvatarGroup, Flex, Heading, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { Room, User } from '../types';
 import UserApi from '../api/user.api';
@@ -11,6 +11,7 @@ interface UserProps {
 const RoomComponent: React.FC<UserProps> = (props) => {
   const navigate = useNavigate();
   const { room, activeId, currentUser } = props;
+  console.log(room);
   const { name, description } = room;
   const isCurrentRoom = room._id === activeId;
   const handleClick = async () => {
@@ -36,13 +37,24 @@ const RoomComponent: React.FC<UserProps> = (props) => {
       textAlign="left"
       onClick={handleClick}
     >
-      <Flex flexDirection="column" alignItems="baseline" width="100%">
-        <Heading size="xs" isTruncated width="95%">
-          {name}
-        </Heading>
-        <Text fontSize="xs" isTruncated width="95%">
-          {room?.lastMessage?.content}
-        </Text>
+      <Flex>
+        <AvatarGroup size="xs" max={2} mr="0.5em">
+          {room.participants.map((participant) => (
+            <Avatar
+              key={participant._id}
+              name={`${participant.firstname} ${participant.lastname}`}
+              src={participant.avatar}
+            />
+          ))}
+        </AvatarGroup>
+        <Flex flexDirection="column" alignItems="baseline" width="100%">
+          <Heading size="xs" isTruncated width="95%">
+            {name}
+          </Heading>
+          <Text fontSize="xs" isTruncated width="95%">
+            {room?.lastMessage?.content}
+          </Text>
+        </Flex>
       </Flex>
     </Flex>
   );
