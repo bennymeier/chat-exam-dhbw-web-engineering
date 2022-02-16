@@ -85,7 +85,6 @@ const Sidebar = ({ children, ...props }: SidebarProps) => {
   }, [socket]);
 
   useEffect(() => {
-    console.log(currentChannel);
     if ((currentChannel as Room)?.participants) {
       socket.emit(ROOM_JOIN, currentChannel);
     } else {

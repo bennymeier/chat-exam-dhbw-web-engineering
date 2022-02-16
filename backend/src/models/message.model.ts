@@ -12,9 +12,13 @@ const MessageModel = new Schema<MessageSchema>(
     },
     channel: {
       type: Schema.Types.ObjectId,
-      ref: 'Room', // FIXME: And whats with Chat??
-      required: [true, 'Channel ID is missing.'],
-      immutable: true,
+      refPath: 'conversationType',
+      required: true,
+    },
+    conversationType: {
+      type: String,
+      required: true,
+      enum: ['Chat', 'Room'],
     },
     content: { type: String, required: [true, 'Content is missing.'] },
   },

@@ -42,10 +42,13 @@ const MessageBox: React.FC<MessageBoxProps> = (props) => {
   };
 
   const sendMessage = async () => {
+    // @ts-ignore
+    const conversationType = currentChannel?.participants ? 'Room' : 'Chat';
     const data: CreateMessage = {
       sender: currentUser._id,
       channel: currentChannel._id,
       content: value,
+      conversationType,
     };
     try {
       setIsLoading(true);

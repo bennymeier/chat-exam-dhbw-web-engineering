@@ -7,6 +7,7 @@ export interface MessageSchema extends Document {
   sender: Types.ObjectId;
   channel: Types.ObjectId;
   content: string;
+  conversationType: 'Room' | 'Chat';
 }
 export interface Message extends Document {
   sender: User;

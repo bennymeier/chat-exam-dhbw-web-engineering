@@ -60,6 +60,7 @@ export interface CreateMessage {
   sender: string;
   channel: string;
   content: string;
+  conversationType: 'Chat' | 'Room';
 }
 export interface UpdateMessage {
   content: string;
@@ -68,6 +69,7 @@ export interface Message extends MongoSchema {
   sender: User;
   channel: Room;
   content: string;
+  conversationType: 'Chat' | 'Room';
 }
 
 /* Chats */

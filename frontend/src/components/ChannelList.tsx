@@ -1,6 +1,6 @@
 import { Flex, SkeletonCircle, Skeleton, Box } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { ChannelType, Chat, Room, User } from '../types';
 import { useAuth } from './AuthProvider';
 import RoomApi from '../api/room.api';
@@ -15,6 +15,7 @@ const ChannelList = () => {
   const socket = useSocket();
   const { id: conversationId } = useParams();
   const currentUser = useAuth().user as User;
+  const { pathname } = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -32,6 +33,14 @@ const ChannelList = () => {
   const handleClick = (id: ChannelType) => {
     setActiveMenu(id);
   };
+
+  useEffect(() => {
+    if (pathname.includes('chat')) {
+      setActiveMenu('chat');
+    } else if (pathname.includes('room')) {
+      setActiveMenu('room');
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const fetchData = async () => {
