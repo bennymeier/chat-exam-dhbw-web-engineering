@@ -231,7 +231,9 @@ const Navbar = ({ onOpen, ...props }: NavbarProps) => {
         </Text>
 
         <HStack spacing={{ base: '0', md: '6' }}>
-          <Heading size="md">{getChannelName()}</Heading>
+          <Heading size="md" userSelect="none">
+            {getChannelName()}
+          </Heading>
           <IconButton
             size="lg"
             variant="ghost"
