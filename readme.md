@@ -18,12 +18,12 @@
   - [x] Der Client soll als Webanwendung ausgeführt werden.
   - [x] Die Backendtechnologie und Sprache ist frei wählbar.
   - [x] Es soll eine einfache Chat-Applikation implementiert werden in der es möglich sein soll mit mehreren Clients auf ein gemeinsames Backend zuzugreifen wobei die Eingaben der verschiedenen Teilnehmer auf den anderen Clients synchronisiert werden.
-  - [ ] Die eingesetzten Technologien zur Übertragung und Darstellung sollen dokumentiert und die Technologieentscheidungen erörtert werden (in der Präsentation).
+  - [x] Die eingesetzten Technologien zur Übertragung und Darstellung sollen dokumentiert und die Technologieentscheidungen erörtert werden (in der Präsentation).
 
 - Client:
 
-  - [ ] Der Client soll über zwei Bereiche verfügen, einer Anzeige des Chats in der die eigenen und die Nachrichten der anderen verbundenen Teilnehmer angezeigt werden und einer Texteingabe mit der Nachrichten an alle Teilnehmer geschickt werden können.
-  - [ ] Jeder Client soll eineindeutig über einen Namen identifizierbar sein
+  - [x] Der Client soll über zwei Bereiche verfügen, einer Anzeige des Chats in der die eigenen und die Nachrichten der anderen verbundenen Teilnehmer angezeigt werden und einer Texteingabe mit der Nachrichten an alle Teilnehmer geschickt werden können.
+  - [x] Jeder Client soll eineindeutig über einen Namen identifizierbar sein
 
     - Eindeutigkeit bestimmt über: Mail + ID + Username
 
@@ -38,7 +38,7 @@
     - Umgesetzt durch die Anzeige des Online Status in der Userliste
   - [x] Persistenz des Chatverlaufes: Wenn sich ein neuer Client verbindet wird der bisherige Chatverlauf übertragen
     - Alles wird in der MongoDB Cloud gespeichert
-  - User können nicht nur plain text sondern auch HTML/Markdown/BBCode text übertragen
+  - [x] User können nicht nur plain text sondern auch HTML/Markdown/BBCode text übertragen
   - Frei wählbar
 
 ### Technologies used:
@@ -92,6 +92,10 @@ All frameworks, languages or libraries are used because they are:
 - **React Router Dom**
 
   Enables dynamic routing in our web app. It allows us to display pages, e.g. `/login` shows the `<LoginComponent />`
+
+- **React-Markdown**
+
+React Markdown is a markdown renderer. If an user types markdown in the textarea the react-markdown library parses the markdown and renders it in the chat.
 
 - **TypeScript**
 - **Axios**
@@ -209,6 +213,19 @@ With a login the API would be saved by a JWT-Token send with every API-Request! 
 | user:typing    | User is typing - Show Typing component if user is in same chat as the typer |
 | user:notyping  | User stopped typing - Remove user from typing component                     |
 
+### Screenshots
+
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154621.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154745.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154806.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154823.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154847.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154909.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20155407.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20155638.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Unbenannt.PNG)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Unbenannt_1.png)
+
 ### Improvements
 
 - Implement infinity loading for:
@@ -237,16 +254,3 @@ With a login the API would be saved by a JWT-Token send with every API-Request! 
 6. `lastChannelId` and `:id` are not set
    - show `<EmptyRoom />` component
 7. get messages and reactions
-
-#### Screenshots
-
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154621.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154745.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154806.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154823.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154847.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154909.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20155407.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20155638.jpg)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Unbenannt.PNG)
-![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Unbenannt_1.png)
