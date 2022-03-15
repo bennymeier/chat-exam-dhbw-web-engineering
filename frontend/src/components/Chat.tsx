@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Chat, User } from '../types';
 import Status from './Status';
 import UserApi from '../api/user.api';
+import { useSocket } from './SocketProvider';
+import { STATUS_CHANGE } from '../socket.events';
 
 interface ChatProps {
   chat: Chat;
@@ -12,6 +14,7 @@ interface ChatProps {
 }
 const ChatComponent: React.FC<ChatProps> = (props) => {
   const navigate = useNavigate();
+  const socket = useSocket();
   const { chat, activeChannelId, currentUser } = props;
   const [user, setUser] = useState<User>(chat.partner);
   const isCurrentChannel = chat && chat._id === activeChannelId;
@@ -30,6 +33,20 @@ const ChatComponent: React.FC<ChatProps> = (props) => {
       setUser(chat.partner);
     }
   }, []);
+
+  useEffect(() => {
+    socket.on(STATUS_CHANGE, (data: { user: User; statusId: string }) => {
+      console.log(
+        'STATUS CHANGE! ',
+        data.user.firstname + ' ' + data.user.lastname + ' curr: ',
+        user.firstname + ' ' + user.lastname
+      );
+      if (data.user._id === user._id) {
+        const userObj = { ...user, status: data.statusId };
+        setUser(userObj);
+      }
+    });
+  }, [socket, user]);
 
   return (
     <Flex
