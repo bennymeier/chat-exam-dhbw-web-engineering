@@ -2,6 +2,17 @@
 
 ## Build a chat application with frontend and backend.
 
+### How to install:
+
+1. Run `cd .\backend\`
+2. Run `yarn install` or `npm install`
+3. Run `yarn start` or `npm start`
+4. Open a 2nd terminal and run `cd .\frontend\`
+5. Run `yarn install` or `npm install`
+6. Run `yarn start` or `npm start`
+
+So two processes in two terminals should be running. On the backend terminal it should say sth. like `Websockets running on port: 3002`, `Server listening on port: 3001` and `Connected to MongoDB`. On the frontend terminal it should say sth. like `Compiled successfully!`.
+
 ### Team:
 
 - Emre Goek
@@ -114,11 +125,6 @@ React Markdown is a markdown renderer. If an user types markdown in the textarea
   - Intuitive component APIs
 
 - Socket.io
-
-### How to install:
-
-1. Run `yarn install` or `npm install` in the **root directory**
-2. Run `yarn start` or `npm start` to install and run the backend and frontend automatically, thanks to [concurrently](https://www.npmjs.com/package/concurrently)
 
 ### Collections
 
