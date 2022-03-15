@@ -87,8 +87,11 @@ io.on('connection', (socket) => {
 
   // User joined chat
   socket.on(CHAT_JOIN, (chat: Chat) => {
-    console.log(`Join chat with ID ${chat._id}.`);
-    socket.join(chat._id);
+    // FIXME: Sometimes chat._id is undefined
+    if (chat?._id) {
+      console.log(`Join chat with ID ${chat._id}.`);
+      socket.join(chat._id);
+    }
   });
 
   // User left chat
