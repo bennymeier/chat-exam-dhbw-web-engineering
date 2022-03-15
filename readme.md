@@ -237,3 +237,16 @@ With a login the API would be saved by a JWT-Token send with every API-Request! 
 6. `lastChannelId` and `:id` are not set
    - show `<EmptyRoom />` component
 7. get messages and reactions
+
+#### Screenshots
+
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154621.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154745.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154806.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154823.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154847.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20154909.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20155407.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Screenshot%202022-03-15%20155638.jpg)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Unbenannt.PNG)
+![image](https://raw.githubusercontent.com/bennymeier/chat-exam-dhbw-web-engineering/main/.github/Unbenannt_1.png)
