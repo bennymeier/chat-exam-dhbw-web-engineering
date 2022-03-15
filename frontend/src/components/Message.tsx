@@ -1,4 +1,4 @@
-import { DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
@@ -9,11 +9,18 @@ import {
   MenuItem,
   MenuList,
   Text,
+  Link,
   Tooltip,
+  UnorderedList,
+  ListItem,
+  Heading,
+  Image,
+  Code,
 } from '@chakra-ui/react';
 import moment from 'moment';
 import { Message, User } from '../types';
 import { FaEllipsisH } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown';
 
 interface MessageProps {
   message: Message;
@@ -94,7 +101,52 @@ const MessageComponent: React.FC<MessageProps> = (props) => {
               </Box>
             )}
           </Flex>
-          <Text fontSize="sm">{message.content}</Text>
+          <Box>
+            <ReactMarkdown
+              components={{
+                a: ({ node, ...restProps }) => (
+                  <Link isExternal {...restProps} href={restProps.href ?? ''}>
+                    {restProps.children} <ExternalLinkIcon mx="2px" />
+                  </Link>
+                ),
+                code: ({ node, ...restProps }) => (
+                  <Code
+                    {...restProps}
+                    maxWidth="100%"
+                    whiteSpace="break-spaces"
+                  />
+                ),
+                img: ({ node, ...restProps }) => (
+                  <Image boxSize="100px" objectFit="cover" {...restProps} />
+                ),
+                ul: ({ node, ...restProps }) => (
+                  <UnorderedList {...restProps} />
+                ),
+                li: ({ node, ...restProps }) => <ListItem {...restProps} />,
+                h1: ({ node, ...restProps }) => (
+                  <Heading as="h1" {...restProps} size="2xl" />
+                ),
+                h2: ({ node, ...restProps }) => (
+                  <Heading as="h2" {...restProps} size="xl" />
+                ),
+                h3: ({ node, ...restProps }) => (
+                  <Heading as="h3" {...restProps} size="lg" />
+                ),
+                h4: ({ node, ...restProps }) => (
+                  <Heading as="h4" {...restProps} size="md" />
+                ),
+                h5: ({ node, ...restProps }) => (
+                  <Heading as="h5" {...restProps} size="sm" />
+                ),
+                h6: ({ node, ...restProps }) => (
+                  <Heading as="h6" {...restProps} size="xs" />
+                ),
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </Box>
+          {/* <Text fontSize="sm">{message.content}</Text> */}
         </Box>
       </Flex>
     </>
